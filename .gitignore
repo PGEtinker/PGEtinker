@@ -1,7 +1,23 @@
 /node_modules
-/public/build
-/public/hot
-/public/storage
+
+# Generated Public Files
+/public/css
+/public/data
+/public/js
+/public/fonts
+
+/public/mix-manifest.json
+/public/css.worker.js
+/public/css.worker.js.LICENSE.txt
+/public/editor.worker.js
+/public/editor.worker.js.LICENSE.txt
+/public/html.worker.js
+/public/html.worker.js.LICENSE.txt
+/public/json.worker.js
+/public/json.worker.js.LICENSE.txt
+/public/ts.worker.js
+/public/ts.worker.js.LICENSE.txt
+
 /storage/*.key
 /vendor
 .env

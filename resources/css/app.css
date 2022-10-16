@@ -1,0 +1,67 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    background: #222;
+    overflow: hidden;
+}
+
+#app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
+    background: #f0f;
+}
+
+#header {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 48px;
+}
+
+#content {
+    position: absolute;
+    top: 49px;
+    bottom: 33px;
+    width: 100%;
+    overflow: hidden;
+}
+
+#footer {
+    position: absolute;
+    display: block;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+
+}
+
+h2 {
+    color: #9d9d9d;
+}
+
+.code-editor,
+.info-editor {
+    width: 100%;
+    height: 100%;
+}
+
+#player {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.compile-button {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
