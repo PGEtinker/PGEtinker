@@ -11,9 +11,9 @@ var config = {
         showPopoutIcon: false,
     },
     content: [{
-        type: 'row',
+        type: 'column',
         content:[{
-            type: 'column',
+            type: 'row',
             content:[{
                 type: 'component',
                 componentName: 'editor',
@@ -21,21 +21,24 @@ var config = {
                 isClosable: false,
             },{
                 type: 'component',
-                componentName: 'info',
-                componentState: { label: 'Error/Warning/Debug Panel' },
-                height: 15,
+                componentName: 'player',
+                componentState: { label: 'Player' },
                 isClosable: false,
             }]
         },{
             type: 'component',
-            componentName: 'player',
-            componentState: { label: 'Player' },
+            componentName: 'info',
+            componentState: { label: 'Error/Warning/Debug Panel' },
+            height: 15,
             isClosable: false,
         }]
     }]
 };
 
 let myLayout = new GoldenLayout( config, $('#content') );
+
+let monEditor = null;
+let monInfo   = null;
 
 // editor component
 myLayout.registerComponent( 'editor', function( container, componentState )
@@ -44,10 +47,10 @@ myLayout.registerComponent( 'editor', function( container, componentState )
     
     container.on('open', function()
     {
-        let elemCode = container.getElement().find('.code-editor')[0];
+        let elemCode    = container.getElement().find('.code-editor')[0];
         let elemCompile = container.getElement().find('.compile-button');
 
-        let editor = monaco.editor.create(elemCode, {
+        monEditor = monaco.editor.create(elemCode, {
             value: defaultValue,
             language: 'cpp',
             theme: 'vs-dark',
@@ -55,18 +58,22 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 
         container.on('resize', function()
         {
-            editor.layout();
+            monEditor.layout();
         });
 
         elemCompile.on('click', function()
         {
-            axios.post('/api/compile', {code: editor.getValue()})
+            monInfo.getModel().setValue('');
+
+            axios.post('/api/compile', {code: monEditor.getModel().getValue()})
             .then(function(response)
             {
                 if(response.data.success)
                 {
                     $('#player')[0].src = '/player';
                 }
+
+                monInfo.getModel().setValue(response.data.messages);
             })
             .catch(function(error)
             {
@@ -91,15 +98,39 @@ myLayout.registerComponent( 'player', function( container, componentState )
 // info component
 myLayout.registerComponent( 'info', function( container, componentState ){
     
-    // container.getElement().html( '<h2>' + componentState.label + '</h2>' );
+    container.getElement().html( '<div class="info-editor"></div>' );
 
     container.on('open', function()
     {
-        console.log(componentState.label, 'opened');
-    });
+        let elemInfo    = container.getElement().find('.info-editor')[0];
 
-    
+        monInfo = monaco.editor.create(elemInfo, {
+            value: '',
+            language: 'bash',
+            theme: 'vs-dark',
+
+            wordWrap: 'wordWrapColumn',
+            // wordWrapColumn: 80,
+        });
+        
+        container.on('resize', function()
+        {
+            monInfo.layout();
+        });
+
+    });
 });
+
+myLayout.on('initialised', function()
+{
+    window.addEventListener('resize', function(e)
+    {
+        myLayout.updateSize();
+    });
+})
 
 // initialize the layout
 myLayout.init();
+
+
+
