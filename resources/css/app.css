@@ -53,11 +53,40 @@ h2 {
     height: 100%;
 }
 
+.info-editor {
+    overflow: hidden;
+    overflow-y: auto;
+}
+
 #player {
     display: block;
     width: 100%;
     height: 100%;
     border: none;
+}
+
+#compiler-status {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: #222;
+}
+
+#compiler-staus.loading {
+    display: block;
+}
+
+#compiler-status.compiling {
+    display: block;
+    background: #080;
+}
+
+#compiler-status.fail {
+    display: block;
+    background: #800;
 }
 
 .compile-button {
