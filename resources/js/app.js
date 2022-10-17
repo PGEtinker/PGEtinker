@@ -24,47 +24,61 @@ String.prototype.toHtmlEntities = function() {
     });
 };
 
-// Golden Layout
-let myLayout = new GoldenLayout({
-    settings: {
-        showPopoutIcon: false,
-    },
-    content: [{
-        type: 'column',
+
+let pgeTinkerSavedLayout = localStorage.getItem('pgeTinkerSavedLayout');
+let layoutConfig = null;
+
+if(pgeTinkerSavedLayout === null)
+{
+    // set the default layout
+    layoutConfig = {
+        settings: {
+            showPopoutIcon: false,
+        },
         content: [{
-            type: 'row',
+            type: 'column',
             content: [{
-                type: 'component',
-                componentName: 'editor',
-                componentState: { label: 'Editor Panel' },
-                isClosable: false,
+                type: 'row',
+                content: [{
+                    type: 'component',
+                    componentName: 'editor',
+                    componentState: { label: 'Editor Panel' },
+                    isClosable: false,
+                },{
+                    type: 'component',
+                    componentName: 'player',
+                    componentState: { label: 'Player Panel' },
+                    isClosable: false,
+                }]
             },{
-                type: 'component',
-                componentName: 'player',
-                componentState: { label: 'Player Panel' },
-                isClosable: false,
-            }]
-        },{
-            type: 'stack',
-            height: 15,
-            activeItemIndex: 1,
-            content: [{
-                type: 'component',
-                componentName: 'info',
-                componentState: { label: 'Info Panel' },
-                isClosable: false,
-            },{
-                type: 'component',
-                componentName: 'console',
-                componentState: { label: 'Console Panel' },
-                isClosable: false,
+                type: 'stack',
+                height: 15,
+                activeItemIndex: 1,
+                content: [{
+                    type: 'component',
+                    componentName: 'info',
+                    componentState: { label: 'Info Panel' },
+                    isClosable: false,
+                },{
+                    type: 'component',
+                    componentName: 'console',
+                    componentState: { label: 'Console Panel' },
+                    isClosable: false,
+                }]
             }]
         }]
-    }]
-}, $('#content'));
+    };
+}
+else
+{
+    layoutConfig = JSON.parse(pgeTinkerSavedLayout);
+}
+
+// Golden Layout
+let pgeLayout = new GoldenLayout(layoutConfig, $('#content'));
 
 // editor component
-myLayout.registerComponent( 'editor', function( container, componentState )
+pgeLayout.registerComponent( 'editor', function( container, componentState )
 {
     container.getElement().html( '<div id="editor-panel"><div class="code-editor"></div><button type="button" class="compile-button">Compile</button></div>' );
     
@@ -159,13 +173,13 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 });
 
 // player component
-myLayout.registerComponent( 'player', function( container, componentState )
+pgeLayout.registerComponent( 'player', function( container, componentState )
 {
     container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
 });
 
 // info component
-myLayout.registerComponent( 'info', function( container, componentState )
+pgeLayout.registerComponent( 'info', function( container, componentState )
 {
     container.getElement().html( '<div id="info-panel" data-type="text/css"></div>' );
 
@@ -175,7 +189,7 @@ myLayout.registerComponent( 'info', function( container, componentState )
     });
 });
 
-myLayout.registerComponent( 'console', function( container, componentState )
+pgeLayout.registerComponent( 'console', function( container, componentState )
 {
     container.getElement().html( '<div id="console-panel"><div></div></div>' );
     
@@ -185,12 +199,12 @@ myLayout.registerComponent( 'console', function( container, componentState )
     });
 });
 
-
-myLayout.on('initialised', function()
+// stuff that needs to happen when the layout has been initialised.
+pgeLayout.on('initialised', function()
 {
     window.addEventListener('resize', function(e)
     {
-        myLayout.updateSize();
+        pgeLayout.updateSize();
     });
 
     // force empty console
@@ -210,5 +224,13 @@ myLayout.on('initialised', function()
     });    
 });
 
+// save the state
+pgeLayout.on( 'stateChanged', function()
+{
+    var state = JSON.stringify( pgeLayout.toConfig() );
+    localStorage.setItem( 'pgeTinkerSavedLayout', state );
+});
+
 // initialize the layout
-myLayout.init();
+pgeLayout.init();
+
