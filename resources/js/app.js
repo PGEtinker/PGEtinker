@@ -5,8 +5,23 @@ import * as monaco from 'monaco-editor';
 let defaultValue = $('#defaultCode').text();
 $('#defaultCode').remove();
 
-// default layout config
-var config = {
+// Editor Panel
+window.monEditor = null;
+
+//  Information Panel
+window.monInfo = null;
+let elemInfo  = null;
+let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+)/g; 
+
+String.prototype.toHtmlEntities = function() {
+    return this.replace(/./gm, function(s) {
+        // return "&#" + s.charCodeAt(0) + ";";
+        return (s.match(/[a-z0-9\s]+/i)) ? s : "&#" + s.charCodeAt(0) + ";";
+    });
+};
+
+// Golden Layout
+let myLayout = new GoldenLayout({
     settings: {
         showPopoutIcon: false,
     },
@@ -17,37 +32,33 @@ var config = {
             content:[{
                 type: 'component',
                 componentName: 'editor',
-                componentState: { label: 'Editor' },
+                componentState: { label: 'Editor Panel' },
                 isClosable: false,
             },{
                 type: 'component',
                 componentName: 'player',
-                componentState: { label: 'Player' },
+                componentState: { label: 'Player Panel' },
                 isClosable: false,
             }]
         },{
             type: 'component',
             componentName: 'info',
-            componentState: { label: 'Error/Warning/Debug Panel' },
+            componentState: { label: 'Info Panel' },
             height: 15,
             isClosable: false,
         }]
     }]
-};
+}, $('#content'));
 
-let myLayout = new GoldenLayout( config, $('#content') );
-
-let monEditor = null;
-let monInfo   = null;
 
 // editor component
 myLayout.registerComponent( 'editor', function( container, componentState )
 {
-    container.getElement().html( '<div class="code-editor"></div><button type="button" class="compile-button">Compile</button>' );
+    container.getElement().html( '<div id="editor-panel"><div class="code-editor"></div><button type="button" class="compile-button">Compile</button></div>' );
     
     container.on('open', function()
     {
-        let elemCode    = container.getElement().find('.code-editor')[0];
+        let elemCode    = $('#editor-panel .code-editor')[0];
         let elemCompile = container.getElement().find('.compile-button');
 
         monEditor = monaco.editor.create(elemCode, {
@@ -63,7 +74,10 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 
         elemCompile.on('click', function()
         {
-            monInfo.getModel().setValue('');
+            let status = $('#player-panel div')[0];
+            
+            status.className = 'compiling';
+            elemInfo.innerHTML = '';
 
             axios.post('/api/compile', {code: monEditor.getModel().getValue()})
             .then(function(response)
@@ -71,9 +85,40 @@ myLayout.registerComponent( 'editor', function( container, componentState )
                 if(response.data.success)
                 {
                     $('#player')[0].src = '/player';
+                    setTimeout(function() { status.className = ''; }, 1000);
+                }
+                else
+                {
+                    status.className = 'fail';
                 }
 
-                monInfo.getModel().setValue(response.data.messages);
+                let info = new Array();
+                let m    = null;
+                
+                while((m = regExInfo.exec(response.data.messages)) !== null)
+                {
+                    if (m.index === regExInfo.lastIndex)
+                    {
+                        re.lastIndex++;
+                    }
+
+                    info.push({ input: m[0], line: m[2], column: m[3] });
+                }
+                
+                let out = response.data.messages;
+                info.forEach(function(item)
+                {
+                    if(item.input.indexOf('source.cpp') === 0)
+                    {
+                        out = out.replace(item.input, `<a href="#" onclick="monEditor.revealPositionInCenter({ lineNumber: ${item.line}, column: ${item.column} }); return false;">${item.input}</a>`);
+                    }
+                        
+                    
+                    if(item.input.indexOf('olcPixelGameEngine.h') === 0)
+                        out = out.replace(item.input, `<a href="https://github.com/OneLoneCoder/olcPixelGameEngine/blob/develop/olcPixelGameEngine.h#L${item.line}" target="_blank">${item.input}</a>`);
+                });
+                
+                elemInfo.innerHTML = out;
             })
             .catch(function(error)
             {
@@ -87,7 +132,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 // player component
 myLayout.registerComponent( 'player', function( container, componentState )
 {
-    container.getElement().html( '<iframe id="player" src="/player"></iframe>' );
+    container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
     
     container.on('open', function()
     {
@@ -98,26 +143,24 @@ myLayout.registerComponent( 'player', function( container, componentState )
 // info component
 myLayout.registerComponent( 'info', function( container, componentState ){
     
-    container.getElement().html( '<div class="info-editor"></div>' );
+    container.getElement().html( '<div id="info-panel" data-type="text/css"></div>' );
 
     container.on('open', function()
     {
-        let elemInfo    = container.getElement().find('.info-editor')[0];
+        elemInfo    = $('#info-panel')[0];
 
-        monInfo = monaco.editor.create(elemInfo, {
-            value: '',
-            language: 'bash',
-            theme: 'vs-dark',
+        // monInfo = monaco.editor.create(elemInfo, {
+        //     value: '',
+        //     language: 'bash',
+        //     theme: 'vs-dark',
 
-            wordWrap: 'wordWrapColumn',
-            // wordWrapColumn: 80,
-        });
+        //     wordWrap: 'on',
+        // });
         
-        container.on('resize', function()
-        {
-            monInfo.layout();
-        });
-
+        // container.on('resize', function()
+        // {
+        //     monInfo.layout();
+        // });
     });
 });
 
