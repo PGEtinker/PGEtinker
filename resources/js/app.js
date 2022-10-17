@@ -46,7 +46,8 @@ let myLayout = new GoldenLayout({
             }]
         },{
             type: 'stack',
-            height: 14,
+            height: 15,
+            activeItemIndex: 1,
             content: [{
                 type: 'component',
                 componentName: 'info',
