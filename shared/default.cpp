@@ -15,23 +15,42 @@ public:
     bool OnUserCreate() override
     {
         // Called once at the start, so create things here
+        color = RandomColor();
         return true;
     }
     
     bool OnUserUpdate(float fElapsedTime) override
     {
         // Called once per frame, draws random coloured pixels
-        for (int x = 0; x < ScreenWidth(); x++)
-            for (int y = 0; y < ScreenHeight(); y++)
-                Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
+        if(GetKey(olc::SPACE).bPressed)
+            color = RandomColor();
+        
+        Clear(color);
+        DrawRect(0,0,ScreenWidth()-1, ScreenHeight()-1, olc::YELLOW);
+        DrawString(6,  6, "Hello, PGE", olc::BLACK);
+        DrawString(5,  5, "Hello, PGE", olc::WHITE);
+        DrawString(6, 26, "Mouse position SHOULD match\nclosely to the circle.\n\nYellow borders should ALWAYS\nbe visible\n\nSPACE to change color.", olc::BLACK);
+        DrawString(5, 25, "Mouse position SHOULD match\nclosely to the circle.\n\nYellow borders should ALWAYS\nbe visible\n\nSPACE to change color.", olc::WHITE);
+        
+        DrawString(6, 221, GetWindowSize().str(), olc::BLACK);
+        DrawString(5, 220, GetWindowSize().str(), olc::WHITE);
+        FillCircle(GetMousePos(), 3, olc::RED);
+        Draw(GetMousePos(), olc::WHITE);
         return true;
     }
+    
+    olc::Pixel RandomColor()
+    {
+        return olc::Pixel(rand() % 128, rand() % 128, rand() % 128);
+    }
+    
+    olc::Pixel color;
 };
 
 int main()
 {
     Example demo;
-    if (demo.Construct(256, 240, 4, 4))
+    if (demo.Construct(256, 240, 2, 2))
         demo.Start();
     return 0;
 }
