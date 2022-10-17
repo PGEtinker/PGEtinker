@@ -9,10 +9,13 @@ $('#defaultCode').remove();
 window.monEditor = null;
 window.monDecorator = null;
 
-//  Information Panel
+// Information Panel
 window.monInfo = null;
 let elemInfo  = null;
 let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): ([a-zA-Z0-9]+):/g; 
+
+// Console Panel
+let elemConsole = null;
 
 String.prototype.toHtmlEntities = function() {
     return this.replace(/./gm, function(s) {
@@ -28,9 +31,9 @@ let myLayout = new GoldenLayout({
     },
     content: [{
         type: 'column',
-        content:[{
+        content: [{
             type: 'row',
-            content:[{
+            content: [{
                 type: 'component',
                 componentName: 'editor',
                 componentState: { label: 'Editor Panel' },
@@ -42,15 +45,22 @@ let myLayout = new GoldenLayout({
                 isClosable: false,
             }]
         },{
-            type: 'component',
-            componentName: 'info',
-            componentState: { label: 'Info Panel' },
-            height: 15,
-            isClosable: false,
+            type: 'stack',
+            height: 14,
+            content: [{
+                type: 'component',
+                componentName: 'info',
+                componentState: { label: 'Info Panel' },
+                isClosable: false,
+            },{
+                type: 'component',
+                componentName: 'console',
+                componentState: { label: 'Console Panel' },
+                isClosable: false,
+            }]
         }]
     }]
 }, $('#content'));
-
 
 // editor component
 myLayout.registerComponent( 'editor', function( container, componentState )
@@ -150,7 +160,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 // player component
 myLayout.registerComponent( 'player', function( container, componentState )
 {
-    container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
+    container.getElement().html( '<div id="player-panel"><iframe src="/player" sandbox="allow-scripts"></iframe><div></div></div>' );
     
     container.on('open', function()
     {
@@ -159,8 +169,8 @@ myLayout.registerComponent( 'player', function( container, componentState )
 });
 
 // info component
-myLayout.registerComponent( 'info', function( container, componentState ){
-    
+myLayout.registerComponent( 'info', function( container, componentState )
+{
     container.getElement().html( '<div id="info-panel" data-type="text/css"></div>' );
 
     container.on('open', function()
@@ -169,16 +179,27 @@ myLayout.registerComponent( 'info', function( container, componentState ){
     });
 });
 
+myLayout.registerComponent( 'console', function( container, componentState )
+{
+    container.getElement().html( '<div id="console-panel"><div></div></div>' );
+    
+    container.on('open', function()
+    {
+        elemConsole = $('#console-panel div')[0];
+    });
+});
+
+
 myLayout.on('initialised', function()
 {
     window.addEventListener('resize', function(e)
     {
         myLayout.updateSize();
     });
-})
+
+    elemConsole.innerHTML = 'The console will output here, eventually.';
+});
 
 // initialize the layout
 myLayout.init();
-
-
 
