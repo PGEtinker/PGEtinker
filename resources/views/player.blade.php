@@ -40,7 +40,9 @@
             print: (function () {
                 return function (text) {
                     if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-                    console.log(text);
+                    
+                    // send to the top window as an event
+                    window.top.dispatchEvent(new CustomEvent('pgetinker:console-write', { detail: text }));
                 };
             })(),
             canvas: (function () {
@@ -68,6 +70,8 @@
                 if (text) console.error('[post-exception status] ' + text);
             };
         };
+        // clear the console in top window
+        window.top.dispatchEvent(new CustomEvent('pgetinker:console-clear'));
     </script>
     
     <script async type="text/javascript" src="data/{{ $pgeTinkerFilename }}.js"></script>
