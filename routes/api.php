@@ -59,7 +59,11 @@ Route::post('/compile', function(Request $request)
         chdir($original_directory);
         
         $out = $stdout . $stderr;
-        $out = str_replace("{$base_data_path}.cpp", "<source>.cpp", $out);
+        
+        // filter out stuff the end user doesn't need to know
+        $out = str_replace("{$base_data_path}.cpp", "source.cpp", $out);
+        $out = str_replace("{$base_data_path}.js", "source.js", $out);
+        $out = str_replace("{$base_data_path}.wasm", "source.wasm", $out);
         $out = str_replace(base_path() . '/shared/include/', "", $out);
         $out = str_replace(base_path() . '/shared/include' , "include", $out);
 
