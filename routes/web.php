@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\Session;
 
 Route::get('/player', function()
 {
+    
+    if(!file_exists(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.js'))
+    {
+        return view('player-intro');
+    }
     return view('player', [
         'pgeTinkerFilename' => Session::get('pgeTinkerFilename'),
     ]);
