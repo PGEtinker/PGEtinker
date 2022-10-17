@@ -161,7 +161,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 // player component
 myLayout.registerComponent( 'player', function( container, componentState )
 {
-    container.getElement().html( '<div id="player-panel"><iframe src="/player" sandbox="allow-scripts"></iframe><div></div></div>' );
+    container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
     
     container.on('open', function()
     {
