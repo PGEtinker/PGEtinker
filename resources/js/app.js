@@ -84,7 +84,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
             {
                 if(response.data.success)
                 {
-                    $('#player')[0].src = '/player';
+                    $('#player-panel iframe')[0].src = '/player';
                     setTimeout(function() { status.className = ''; }, 1000);
                 }
                 else
