@@ -9,10 +9,13 @@ $('#defaultCode').remove();
 window.monEditor = null;
 window.monDecorator = null;
 
-//  Information Panel
+// Information Panel
 window.monInfo = null;
 let elemInfo  = null;
 let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): ([a-zA-Z0-9]+):/g; 
+
+// Console Panel
+let elemConsole = null;
 
 String.prototype.toHtmlEntities = function() {
     return this.replace(/./gm, function(s) {
@@ -28,9 +31,9 @@ let myLayout = new GoldenLayout({
     },
     content: [{
         type: 'column',
-        content:[{
+        content: [{
             type: 'row',
-            content:[{
+            content: [{
                 type: 'component',
                 componentName: 'editor',
                 componentState: { label: 'Editor Panel' },
@@ -42,15 +45,23 @@ let myLayout = new GoldenLayout({
                 isClosable: false,
             }]
         },{
-            type: 'component',
-            componentName: 'info',
-            componentState: { label: 'Info Panel' },
+            type: 'stack',
             height: 15,
-            isClosable: false,
+            activeItemIndex: 1,
+            content: [{
+                type: 'component',
+                componentName: 'info',
+                componentState: { label: 'Info Panel' },
+                isClosable: false,
+            },{
+                type: 'component',
+                componentName: 'console',
+                componentState: { label: 'Console Panel' },
+                isClosable: false,
+            }]
         }]
     }]
 }, $('#content'));
-
 
 // editor component
 myLayout.registerComponent( 'editor', function( container, componentState )
@@ -59,7 +70,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
     
     container.on('open', function()
     {
-        let elemCode    = $('#editor-panel .code-editor')[0];
+        let elemCode    = document.querySelector('#editor-panel .code-editor');
         let elemCompile = container.getElement().find('.compile-button');
 
         window.monEditor = monaco.editor.create(elemCode, {
@@ -77,7 +88,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 
         elemCompile.on('click', function()
         {
-            let status = $('#player-panel div')[0];
+            let status = document.querySelector('#player-panel div');
             
             status.className = 'compiling';
             elemInfo.innerHTML = '';
@@ -89,7 +100,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
             {
                 if(response.data.success)
                 {
-                    $('#player-panel iframe')[0].src = '/player';
+                    document.querySelector('#player-panel iframe').src = '/player';
                     setTimeout(function() { status.className = ''; }, 1000);
                 }
                 else
@@ -151,23 +162,29 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 myLayout.registerComponent( 'player', function( container, componentState )
 {
     container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
-    
-    container.on('open', function()
-    {
-        console.log(componentState.label, 'opened');
-    });
 });
 
 // info component
-myLayout.registerComponent( 'info', function( container, componentState ){
-    
+myLayout.registerComponent( 'info', function( container, componentState )
+{
     container.getElement().html( '<div id="info-panel" data-type="text/css"></div>' );
 
     container.on('open', function()
     {
-        elemInfo    = $('#info-panel')[0];
+        elemInfo = document.querySelector('#info-panel');
     });
 });
+
+myLayout.registerComponent( 'console', function( container, componentState )
+{
+    container.getElement().html( '<div id="console-panel"><div></div></div>' );
+    
+    container.on('open', function()
+    {
+        elemConsole = document.querySelector('#console-panel div');
+    });
+});
+
 
 myLayout.on('initialised', function()
 {
@@ -175,10 +192,23 @@ myLayout.on('initialised', function()
     {
         myLayout.updateSize();
     });
-})
+
+    // force empty console
+    elemConsole.innerHTML = '';
+
+    // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
+    window.addEventListener('pgetinker:console-clear', function(e)
+    {
+        elemConsole.innerHTML = '';
+    });
+
+    // handle console writing. 'pgetinker:console-write' event dispatched from player iframe
+    window.addEventListener('pgetinker:console-write',function(e)
+    {
+        elemConsole.innerHTML += e.detail.toHtmlEntities() + '<br>';
+        elemConsole.scrollTop = elemConsole.scrollHeight;
+    });    
+});
 
 // initialize the layout
 myLayout.init();
-
-
-
