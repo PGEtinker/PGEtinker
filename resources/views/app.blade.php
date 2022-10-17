@@ -19,12 +19,12 @@
         <div id="app">
             <div id="header">
                 <span id="main-brand">PGEtinker Logo</span>
-                <span id="olc-brand">OneLoneCoder Logo</span>
+                <span id="olc-brand">OneLoneCoder/PGE Logo</span>
                 <span id="emscripten-brand">Emscripten Logo</span>
             </div>
             <div id="content"></div>
             <div id="footer">
-                PGEtinker is released under the MIT license. 
+                Haven't quite decided what should go here, probably a copyright notice or perhaps a whitty quote.
             </div>
         </div>
         <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
