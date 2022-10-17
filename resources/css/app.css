@@ -6,6 +6,8 @@ body {
     overflow: hidden;
 }
 
+/* BLOCK LAYOUT */
+
 #app {
     position: fixed;
     top: 0;
@@ -13,7 +15,8 @@ body {
     bottom: 0;
     right: 0;
     overflow: hidden;
-    background: #f0f;
+    background: #3e3c44;
+    color: #ded;
 }
 
 #header {
@@ -31,6 +34,8 @@ body {
     bottom: 33px;
     width: 100%;
     overflow: hidden;
+    border-top: 1px solid rgb(140, 144, 157);
+    border-bottom: 1px solid rgb(140, 144, 157);
 }
 
 #footer {
@@ -43,29 +48,52 @@ body {
 
 }
 
-h2 {
-    color: #9d9d9d;
+
+/* BRANDING */
+#main-brand,
+#olc-brand,
+#emscripten-brand {
+    display: inline-block;
+    padding: 0.4rem;
+    border: 1px solid rgb(83, 90, 83);
 }
 
-.code-editor,
-.info-editor {
+/* EDITOR PANEL */
+
+#editor-panel {
     width: 100%;
     height: 100%;
 }
 
-.info-editor {
-    overflow: hidden;
-    overflow-y: auto;
+#editor-panel .code-editor {
+    width: 100%;
+    height: 100%;
 }
 
-#player {
+.compile-button {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+
+
+/* PLAYER PANEL */
+
+#player-panel {
     display: block;
     width: 100%;
     height: 100%;
     border: none;
 }
 
-#compiler-status {
+#player-panel iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#player-panel div {
     display: none;
     position: absolute;
     top: 0;
@@ -75,22 +103,50 @@ h2 {
     background: #222;
 }
 
-#compiler-staus.loading {
+#player-panel div.loading {
     display: block;
 }
 
-#compiler-status.compiling {
+#player-panel div.compiling {
     display: block;
     background: #080;
 }
 
-#compiler-status.fail {
+#player-panel div.fail {
     display: block;
     background: #800;
 }
 
-.compile-button {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
+
+
+
+
+/* INFORMATION PANEL */
+
+#info-panel {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+    white-space: pre;
+    font-family: "Droid Sans Mono", "monospace", monospace;
+    font-weight: normal;
+    font-size: 14px;
+    font-feature-settings: "liga" 0, "calt" 0;
+    line-height: 19px;
+    letter-spacing: 0px;
+    padding: 1.5rem;
+    padding-bottom: 3rem;
 }
+
+#info-panel a:active,
+#info-panel a:link,
+#info-panel a:visited {
+    color:#999;
+    text-decoration: none;
+}
+
+#info-panel a:hover {
+    text-decoration: underline;
+}
+
