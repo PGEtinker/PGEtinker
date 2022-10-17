@@ -10,7 +10,6 @@ mix.webpackConfig({
 // jquery
 mix.copy('node_modules/jquery/dist/jquery.min.js', 'public/js');
 
-
 // golden layout
 mix.copy('node_modules/golden-layout/dist/goldenlayout.min.js', 'public/js');
 
@@ -34,6 +33,8 @@ mix.copy('node_modules/golden-layout/src/css/goldenlayout-soda-theme.css.map', '
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css', 'public/css');
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css.map', 'public/css');
 
+// images
+mix.copy('resources/images', 'public/images');
 
 // app js
 mix.js('resources/js/app.js', 'public/js');
