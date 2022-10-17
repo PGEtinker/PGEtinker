@@ -70,7 +70,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
     
     container.on('open', function()
     {
-        let elemCode    = $('#editor-panel .code-editor')[0];
+        let elemCode    = document.querySelector('#editor-panel .code-editor');
         let elemCompile = container.getElement().find('.compile-button');
 
         window.monEditor = monaco.editor.create(elemCode, {
@@ -88,7 +88,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 
         elemCompile.on('click', function()
         {
-            let status = $('#player-panel div')[0];
+            let status = document.querySelector('#player-panel div');
             
             status.className = 'compiling';
             elemInfo.innerHTML = '';
@@ -100,7 +100,7 @@ myLayout.registerComponent( 'editor', function( container, componentState )
             {
                 if(response.data.success)
                 {
-                    $('#player-panel iframe')[0].src = '/player';
+                    document.querySelector('#player-panel iframe').src = '/player';
                     setTimeout(function() { status.className = ''; }, 1000);
                 }
                 else
@@ -162,11 +162,6 @@ myLayout.registerComponent( 'editor', function( container, componentState )
 myLayout.registerComponent( 'player', function( container, componentState )
 {
     container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
-    
-    container.on('open', function()
-    {
-        console.log(componentState.label, 'opened');
-    });
 });
 
 // info component
@@ -176,7 +171,7 @@ myLayout.registerComponent( 'info', function( container, componentState )
 
     container.on('open', function()
     {
-        elemInfo    = $('#info-panel')[0];
+        elemInfo = document.querySelector('#info-panel');
     });
 });
 
@@ -186,7 +181,7 @@ myLayout.registerComponent( 'console', function( container, componentState )
     
     container.on('open', function()
     {
-        elemConsole = $('#console-panel div')[0];
+        elemConsole = document.querySelector('#console-panel div');
     });
 });
 
