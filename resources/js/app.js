@@ -7,11 +7,12 @@ $('#defaultCode').remove();
 
 // Editor Panel
 window.monEditor = null;
+window.monDecorator = null;
 
 //  Information Panel
 window.monInfo = null;
 let elemInfo  = null;
-let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+)/g; 
+let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): ([a-zA-Z0-9]+):/g; 
 
 String.prototype.toHtmlEntities = function() {
     return this.replace(/./gm, function(s) {
@@ -61,11 +62,13 @@ myLayout.registerComponent( 'editor', function( container, componentState )
         let elemCode    = $('#editor-panel .code-editor')[0];
         let elemCompile = container.getElement().find('.compile-button');
 
-        monEditor = monaco.editor.create(elemCode, {
+        window.monEditor = monaco.editor.create(elemCode, {
             value: defaultValue,
             language: 'cpp',
             theme: 'vs-dark',
         });
+
+        window.monDecorator = monEditor.deltaDecorations([], []);
 
         container.on('resize', function()
         {
@@ -78,7 +81,9 @@ myLayout.registerComponent( 'editor', function( container, componentState )
             
             status.className = 'compiling';
             elemInfo.innerHTML = '';
-
+            
+            window.monDecorator = monEditor.deltaDecorations(monDecorator, []);
+            
             axios.post('/api/compile', {code: monEditor.getModel().getValue()})
             .then(function(response)
             {
@@ -102,23 +107,36 @@ myLayout.registerComponent( 'editor', function( container, componentState )
                         re.lastIndex++;
                     }
 
-                    info.push({ input: m[0], line: m[2], column: m[3] });
+                    info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4] });
                 }
                 
                 let out = response.data.messages;
+                var entries = [];
+                
                 info.forEach(function(item)
                 {
+
                     if(item.input.indexOf('source.cpp') === 0)
                     {
-                        out = out.replace(item.input, `<a href="#" onclick="monEditor.revealPositionInCenter({ lineNumber: ${item.line}, column: ${item.column} }); return false;">${item.input}</a>`);
+                        out = out.replace(item.input, `<a href="#" onclick="monEditor.setPosition({ lineNumber: ${item.line}, column: ${item.column} }); monEditor.revealPositionInCenter({ lineNumber: ${item.line}, column: ${item.column} }); monEditor.focus(); return false;">${item.input}</a>`);
+                        
+                        // add the decoration
+                        entries.push({
+                            range: new monaco.Range(item.line, 1, item.line, 2),
+                            options: {
+                                isWholeLine: true,
+                                className: 'editor-'+item.type,
+                            }
+                        });
+                        
                     }
                         
-                    
                     if(item.input.indexOf('olcPixelGameEngine.h') === 0)
                         out = out.replace(item.input, `<a href="https://github.com/OneLoneCoder/olcPixelGameEngine/blob/develop/olcPixelGameEngine.h#L${item.line}" target="_blank">${item.input}</a>`);
                 });
                 
                 elemInfo.innerHTML = out;
+                window.monDecorator = monEditor.deltaDecorations([], entries);
             })
             .catch(function(error)
             {
@@ -148,19 +166,6 @@ myLayout.registerComponent( 'info', function( container, componentState ){
     container.on('open', function()
     {
         elemInfo    = $('#info-panel')[0];
-
-        // monInfo = monaco.editor.create(elemInfo, {
-        //     value: '',
-        //     language: 'bash',
-        //     theme: 'vs-dark',
-
-        //     wordWrap: 'on',
-        // });
-        
-        // container.on('resize', function()
-        // {
-        //     monInfo.layout();
-        // });
     });
 });
 
