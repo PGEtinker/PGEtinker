@@ -198,9 +198,22 @@ myLayout.on('initialised', function()
         myLayout.updateSize();
     });
 
-    elemConsole.innerHTML = 'The console will output here, eventually.';
+    // force empty console
+    elemConsole.innerHTML = '';
+
+    // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
+    window.addEventListener('pgetinker:console-clear', function(e)
+    {
+        elemConsole.innerHTML = '';
+    });
+
+    // handle console writing. 'pgetinker:console-write' event dispatched from player iframe
+    window.addEventListener('pgetinker:console-write',function(e)
+    {
+        elemConsole.innerHTML += e.detail.toHtmlEntities() + '<br>';
+        elemConsole.scrollTop = elemConsole.scrollHeight;
+    });    
 });
 
 // initialize the layout
 myLayout.init();
-
