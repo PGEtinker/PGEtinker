@@ -44,6 +44,7 @@ body {
     position: absolute;
     top: 49px;
     bottom: 33px;
+    bottom: 0px;
     width: 100%;
     overflow: hidden;
     border-top: 1px solid rgb(140, 144, 157);
@@ -52,7 +53,7 @@ body {
 
 #footer {
     position: absolute;
-    display: block;
+    display: none;
     bottom: 0;
     left: 0;
     width: 100%;
