@@ -25,7 +25,7 @@ String.prototype.toHtmlEntities = function() {
 };
 
 
-let pgeTinkerSavedLayout = localStorage.getItem('pgeTinkerSavedLayout');
+let pgeTinkerSavedLayout = window.localStorage.getItem('pgeTinkerSavedLayout');
 let layoutConfig = null;
 
 if(pgeTinkerSavedLayout === null)
@@ -77,10 +77,109 @@ else
 // Golden Layout
 let pgeLayout = new GoldenLayout(layoutConfig, $('#content'));
 
+// Compile Code
+window.Compile = function()
+{
+    let status = document.querySelector('#player-panel div');
+    
+    status.className = 'compiling';
+    elemInfo.innerHTML = '';
+    
+    window.monDecorator = monEditor.deltaDecorations(monDecorator, []);
+    
+    axios.post('/api/compile', {code: monEditor.getModel().getValue()})
+    .then(function(response)
+    {
+        if(response.data.success)
+        {
+            document.querySelector('#player-panel iframe').src = '/player';
+            setTimeout(function() { status.className = ''; }, 1000);
+        }
+        else
+        {
+            status.className = 'fail';
+        }
+
+        let info = new Array();
+        let m    = null;
+        
+        while((m = regExInfo.exec(response.data.messages)) !== null)
+        {
+            if (m.index === regExInfo.lastIndex)
+            {
+                re.lastIndex++;
+            }
+
+            info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4] });
+        }
+        
+        let out = response.data.messages;
+        var entries = [];
+        
+        info.forEach(function(item)
+        {
+
+            if(item.input.indexOf('source.cpp') === 0)
+            {
+                out = out.replace(item.input, `<a href="#" onclick="monEditor.setPosition({ lineNumber: ${item.line}, column: ${item.column} }); monEditor.revealPositionInCenter({ lineNumber: ${item.line}, column: ${item.column} }); monEditor.focus(); return false;">${item.input}</a>`);
+                
+                // add the decoration
+                entries.push({
+                    range: new monaco.Range(item.line, 1, item.line, 2),
+                    options: {
+                        isWholeLine: true,
+                        className: 'editor-'+item.type,
+                    }
+                });
+                
+            }
+                
+            if(item.input.indexOf('olcPixelGameEngine.h') === 0)
+                out = out.replace(item.input, `<a href="https://github.com/OneLoneCoder/olcPixelGameEngine/blob/develop/olcPixelGameEngine.h#L${item.line}" target="_blank">${item.input}</a>`);
+        });
+        
+        elemInfo.innerHTML = out;
+        window.monDecorator = monEditor.deltaDecorations([], entries);
+    })
+    .catch(function(error)
+    {
+        console.log(error);
+    });
+
+}
+
+window.RefreshPlayer = function()
+{
+    let status = document.querySelector('#player-panel div');
+    status.className = 'loading';
+    
+    elemInfo.innerHTML = '';
+    document.querySelector('#player-panel iframe').src = '/player';
+    setTimeout(function() { status.className = ''; }, 1000);
+}
+
+window.ResetLayout = function()
+{
+    window.localStorage.removeItem('pgeTinkerSavedLayout');
+    window.location.reload();
+}
+
+
+
 // editor component
 pgeLayout.registerComponent( 'editor', function( container, componentState )
 {
-    container.getElement().html( '<div id="editor-panel"><div class="code-editor"></div><button type="button" class="compile-button">Compile</button></div>' );
+    container.getElement().html(`
+<div id="editor-panel">
+    <div class="menu">
+        <ul>
+            <li><button type="button" onclick="ResetLayout(); return false;">Reset Layout</button></li>
+            <li><button type="button" onclick="Compile(); return false;">Build &amp; Run</button></li>
+            <li><button type="button" onclick="RefreshPlayer(); return false;">Refresh Player</button></li>
+        </ul>
+    </div>
+    <div class="code-editor"></div>
+</div>`);
     
     container.on('open', function()
     {
@@ -100,75 +199,6 @@ pgeLayout.registerComponent( 'editor', function( container, componentState )
             monEditor.layout();
         });
 
-        elemCompile.on('click', function()
-        {
-            let status = document.querySelector('#player-panel div');
-            
-            status.className = 'compiling';
-            elemInfo.innerHTML = '';
-            
-            window.monDecorator = monEditor.deltaDecorations(monDecorator, []);
-            
-            axios.post('/api/compile', {code: monEditor.getModel().getValue()})
-            .then(function(response)
-            {
-                if(response.data.success)
-                {
-                    document.querySelector('#player-panel iframe').src = '/player';
-                    setTimeout(function() { status.className = ''; }, 1000);
-                }
-                else
-                {
-                    status.className = 'fail';
-                }
-
-                let info = new Array();
-                let m    = null;
-                
-                while((m = regExInfo.exec(response.data.messages)) !== null)
-                {
-                    if (m.index === regExInfo.lastIndex)
-                    {
-                        re.lastIndex++;
-                    }
-
-                    info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4] });
-                }
-                
-                let out = response.data.messages;
-                var entries = [];
-                
-                info.forEach(function(item)
-                {
-
-                    if(item.input.indexOf('source.cpp') === 0)
-                    {
-                        out = out.replace(item.input, `<a href="#" onclick="monEditor.setPosition({ lineNumber: ${item.line}, column: ${item.column} }); monEditor.revealPositionInCenter({ lineNumber: ${item.line}, column: ${item.column} }); monEditor.focus(); return false;">${item.input}</a>`);
-                        
-                        // add the decoration
-                        entries.push({
-                            range: new monaco.Range(item.line, 1, item.line, 2),
-                            options: {
-                                isWholeLine: true,
-                                className: 'editor-'+item.type,
-                            }
-                        });
-                        
-                    }
-                        
-                    if(item.input.indexOf('olcPixelGameEngine.h') === 0)
-                        out = out.replace(item.input, `<a href="https://github.com/OneLoneCoder/olcPixelGameEngine/blob/develop/olcPixelGameEngine.h#L${item.line}" target="_blank">${item.input}</a>`);
-                });
-                
-                elemInfo.innerHTML = out;
-                window.monDecorator = monEditor.deltaDecorations([], entries);
-            })
-            .catch(function(error)
-            {
-                console.log(error);
-            });
-    
-        });
     });
 });
 
