@@ -245,18 +245,32 @@ pgeLayout.on('initialised', function()
     // force empty console
     elemConsole.innerHTML = '';
 
-    // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
-    window.addEventListener('pgetinker:console-clear', function(e)
+    // handle postMessage, specifically from the player iframe
+    window.addEventListener('message', function(e)
     {
-        elemConsole.innerHTML = '';
-    });
+        // guarantee we're processing a message coming from the player frame
+        if(!(e.origin === 'null' && e.source === elemPlayerIframe.contentWindow))
+            return;
 
-    // handle console writing. 'pgetinker:console-write' event dispatched from player iframe
-    window.addEventListener('pgetinker:console-write',function(e)
-    {
-        elemConsole.innerHTML += e.detail.toHtmlEntities() + '<br>';
-        elemConsole.scrollTop = elemConsole.scrollHeight;
-    });    
+        // sanity check, is event set?
+        if(e.data.event === undefined)
+            return;
+        
+        // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
+        if(e.data.event === 'pgetinker:console-clear')
+        {
+            elemConsole.innerHTML = '';
+            return;
+        }
+        
+        // handle console writing. 'pgetinker:console-write' event dispatched from player iframe
+        if(e.data.event === 'pgetinker:console-write')
+        {
+            elemConsole.innerHTML += e.data.text.toHtmlEntities() + '<br>';
+            elemConsole.scrollTop = elemConsole.scrollHeight;
+            return;
+        }
+    });
 });
 
 // save the state

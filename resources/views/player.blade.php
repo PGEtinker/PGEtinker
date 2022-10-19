@@ -40,9 +40,12 @@
             print: (function () {
                 return function (text) {
                     if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-                    
-                    // send to the top window as an event
-                    window.top.dispatchEvent(new CustomEvent('pgetinker:console-write', { detail: text }));
+                    console.log(text);
+                    // write to console in top window
+                    window.parent.postMessage({
+                        event: 'pgetinker:console-write',
+                        text: text,
+                    }, '{{ env('APP_URL') }}');
                 };
             })(),
             canvas: (function () {
@@ -71,7 +74,9 @@
             };
         };
         // clear the console in top window
-        window.top.dispatchEvent(new CustomEvent('pgetinker:console-clear'));
+        window.parent.postMessage({
+            event: 'pgetinker:console-clear',
+        }, '{{ env('APP_URL') }}');
     </script>
     
     <script async type="text/javascript" src="data/{{ $pgeTinkerFilename }}.js"></script>
