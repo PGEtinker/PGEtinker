@@ -18,9 +18,17 @@
         <div id="defaultCode" style="display:none;">{{ $code }}</div>
         <div id="app">
             <div id="header">
-                <span id="main-brand">PGEtinker Logo</span>
-                <span id="olc-brand">OneLoneCoder/PGE Logo</span>
-                <span id="emscripten-brand">Emscripten Logo</span>
+                <a href="/">
+                    <img src="{{ mix('images/PGEtinker-logo.png') }}" alt="PGEtinker Logo">
+                </a>
+                <div class="branding">
+                    <a href="https://github.com/OneLoneCoder/olcPixelGameEngine" target="_blank">
+                        <img id="olc-brand" src="{{ mix('images/pge-logo.png') }}" alt="OneLoneCoder PixelGameEngine Logo">
+                    </a>
+                    <a href="https://emscripten.org/" target="_blank">
+                        <img id="emscripten-brand" src="{{ mix('images/emscripten-logo.png') }}" alt="Emscripten Logo">
+                    </a>
+                </div>
             </div>
             <div id="content"></div>
             <div id="footer">
