@@ -206,8 +206,7 @@ pgeLayout.registerComponent( 'editor', function( container, componentState )
 // player component
 pgeLayout.registerComponent( 'player', function( container, componentState )
 {
-    container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
-    // container.getElement().html( '<div id="player-panel"><iframe sandbox="allow-scripts" src="/player"></iframe><div></div></div>' );
+    container.getElement().html( '<div id="player-panel"><iframe sandbox="allow-scripts" src="/player"></iframe><div></div></div>' );
     container.on('open', function()
     {
         elemPlayerIframe = document.querySelector('#player-panel iframe');
