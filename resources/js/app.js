@@ -17,6 +17,9 @@ let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): ([a-zA-Z0-
 // Console Panel
 let elemConsole = null;
 
+// Player Panel
+let elemPlayerIframe = null;
+
 String.prototype.toHtmlEntities = function() {
     return this.replace(/./gm, function(s) {
         // return "&#" + s.charCodeAt(0) + ";";
@@ -92,7 +95,7 @@ window.Compile = function()
     {
         if(response.data.success)
         {
-            document.querySelector('#player-panel iframe').src = '/player';
+            elemPlayerIframe.src = '/player';
             setTimeout(function() { status.className = ''; }, 1000);
         }
         else
@@ -154,7 +157,7 @@ window.RefreshPlayer = function()
     status.className = 'loading';
     
     elemInfo.innerHTML = '';
-    document.querySelector('#player-panel iframe').src = '/player';
+    elemPlayerIframe.src = '/player';
     setTimeout(function() { status.className = ''; }, 1000);
 }
 
@@ -163,8 +166,6 @@ window.ResetLayout = function()
     window.localStorage.removeItem('pgeTinkerSavedLayout');
     window.location.reload();
 }
-
-
 
 // editor component
 pgeLayout.registerComponent( 'editor', function( container, componentState )
@@ -206,6 +207,11 @@ pgeLayout.registerComponent( 'editor', function( container, componentState )
 pgeLayout.registerComponent( 'player', function( container, componentState )
 {
     container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
+    // container.getElement().html( '<div id="player-panel"><iframe sandbox="allow-scripts" src="/player"></iframe><div></div></div>' );
+    container.on('open', function()
+    {
+        elemPlayerIframe = document.querySelector('#player-panel iframe');
+    });
 });
 
 // info component
@@ -263,4 +269,3 @@ pgeLayout.on( 'stateChanged', function()
 
 // initialize the layout
 pgeLayout.init();
-
