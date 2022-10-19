@@ -17,6 +17,9 @@ let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): ([a-zA-Z0-
 // Console Panel
 let elemConsole = null;
 
+// Player Panel
+let elemPlayerIframe = null;
+
 String.prototype.toHtmlEntities = function() {
     return this.replace(/./gm, function(s) {
         // return "&#" + s.charCodeAt(0) + ";";
@@ -92,7 +95,7 @@ window.Compile = function()
     {
         if(response.data.success)
         {
-            document.querySelector('#player-panel iframe').src = '/player';
+            elemPlayerIframe.src = '/player';
             setTimeout(function() { status.className = ''; }, 1000);
         }
         else
@@ -154,7 +157,7 @@ window.RefreshPlayer = function()
     status.className = 'loading';
     
     elemInfo.innerHTML = '';
-    document.querySelector('#player-panel iframe').src = '/player';
+    elemPlayerIframe.src = '/player';
     setTimeout(function() { status.className = ''; }, 1000);
 }
 
@@ -163,8 +166,6 @@ window.ResetLayout = function()
     window.localStorage.removeItem('pgeTinkerSavedLayout');
     window.location.reload();
 }
-
-
 
 // editor component
 pgeLayout.registerComponent( 'editor', function( container, componentState )
@@ -205,7 +206,11 @@ pgeLayout.registerComponent( 'editor', function( container, componentState )
 // player component
 pgeLayout.registerComponent( 'player', function( container, componentState )
 {
-    container.getElement().html( '<div id="player-panel"><iframe src="/player"></iframe><div></div></div>' );
+    container.getElement().html( '<div id="player-panel"><iframe sandbox="allow-scripts" src="/player"></iframe><div></div></div>' );
+    container.on('open', function()
+    {
+        elemPlayerIframe = document.querySelector('#player-panel iframe');
+    });
 });
 
 // info component
@@ -240,18 +245,32 @@ pgeLayout.on('initialised', function()
     // force empty console
     elemConsole.innerHTML = '';
 
-    // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
-    window.addEventListener('pgetinker:console-clear', function(e)
+    // handle postMessage, specifically from the player iframe
+    window.addEventListener('message', function(e)
     {
-        elemConsole.innerHTML = '';
-    });
+        // guarantee we're processing a message coming from the player frame
+        if(!(e.origin === 'null' && e.source === elemPlayerIframe.contentWindow))
+            return;
 
-    // handle console writing. 'pgetinker:console-write' event dispatched from player iframe
-    window.addEventListener('pgetinker:console-write',function(e)
-    {
-        elemConsole.innerHTML += e.detail.toHtmlEntities() + '<br>';
-        elemConsole.scrollTop = elemConsole.scrollHeight;
-    });    
+        // sanity check, is event set?
+        if(e.data.event === undefined)
+            return;
+        
+        // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
+        if(e.data.event === 'pgetinker:console-clear')
+        {
+            elemConsole.innerHTML = '';
+            return;
+        }
+        
+        // handle console writing. 'pgetinker:console-write' event dispatched from player iframe
+        if(e.data.event === 'pgetinker:console-write')
+        {
+            elemConsole.innerHTML += e.data.text.toHtmlEntities() + '<br>';
+            elemConsole.scrollTop = elemConsole.scrollHeight;
+            return;
+        }
+    });
 });
 
 // save the state
@@ -263,4 +282,3 @@ pgeLayout.on( 'stateChanged', function()
 
 // initialize the layout
 pgeLayout.init();
-
