@@ -80,6 +80,18 @@ else
 // Golden Layout
 let pgeLayout = new GoldenLayout(layoutConfig, $('#content'));
 
+window.Share = function()
+{
+    alert('not implemented');
+}
+
+// Reset Layout
+window.ResetLayout = function()
+{
+    window.localStorage.removeItem('pgeTinkerSavedLayout');
+    window.location.reload();
+}
+
 // Compile Code
 window.Compile = function()
 {
@@ -151,6 +163,7 @@ window.Compile = function()
 
 }
 
+// Refresh Player
 window.RefreshPlayer = function()
 {
     let status = document.querySelector('#player-panel div');
@@ -161,12 +174,6 @@ window.RefreshPlayer = function()
     setTimeout(function() { status.className = ''; }, 1000);
 }
 
-window.ResetLayout = function()
-{
-    window.localStorage.removeItem('pgeTinkerSavedLayout');
-    window.location.reload();
-}
-
 // editor component
 pgeLayout.registerComponent( 'editor', function( container, componentState )
 {
@@ -174,6 +181,8 @@ pgeLayout.registerComponent( 'editor', function( container, componentState )
 <div id="editor-panel">
     <div class="menu">
         <ul>
+            <li><button type="button" onclick="Share(); return false;">Share</button></li>
+            <li class="separator"></li>
             <li><button type="button" onclick="ResetLayout(); return false;">Reset Layout</button></li>
             <li><button type="button" onclick="Compile(); return false;">Build &amp; Run</button></li>
             <li><button type="button" onclick="RefreshPlayer(); return false;">Refresh Player</button></li>
