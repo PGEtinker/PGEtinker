@@ -2,8 +2,8 @@ import './bootstrap';
 import * as monaco from 'monaco-editor';
 import axios from 'axios';
 
-let PGEtinker = function(){
-    
+let PGEtinker = function()
+{
     // shim String to convert html entities
     String.prototype.toHtmlEntities = function() { return this.replace(/./gm, function(s) { return (s.match(/[a-z0-9\s]+/i)) ? s : "&#" + s.charCodeAt(0) + ";"; }); };
     
@@ -325,6 +325,7 @@ let PGEtinker = function(){
         ResetLayout: ResetLayout,
         Share: Share,
     }
-}();
+
+}(); // PGEtinker
 
 window.PGEtinker = PGEtinker;
