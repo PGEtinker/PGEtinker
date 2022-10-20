@@ -336,6 +336,10 @@ let PGEtinker = function()
     {
         t = (t !== undefined) ? t : theme;
         
+        // paranoia or preparation?
+        if(t !== 'light' && t !== 'dark')
+            t = 'dark'; // dark is default
+
         $('#layout-theme-css')[0].href= `/css/goldenlayout-${t}-theme.css`;
         monaco_Editor.updateOptions({ theme: `vs-${t}` });
         
