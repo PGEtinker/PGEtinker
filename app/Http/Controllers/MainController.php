@@ -85,6 +85,16 @@ class MainController extends Controller
         $stdout = null;
         $stderr = null;
 
+        // thanks Ciarán for pointing out this was needed
+        if($this->tries_to_include_bad_files($request->get('code')))
+        {
+            // your fans await your greatness!
+            return [
+                'messages'  => "Ah ah ah, you tried to include a file you're not supposed to see.",
+                'success' => false,
+            ];
+        }
+
         // open a process to our custom build script, pipe stdout/stderr streams
         $process = proc_open(
             base_path() . '/build-script.sh ' . Session::get('pgeTinkerFilename'), // command
@@ -121,5 +131,23 @@ class MainController extends Controller
             'success' => (file_exists("{$base_data_path}.js") && file_exists("{$base_data_path}.wasm")),
         ];
     }
+    
+    // thanks Ciarán for pointing out this was needed
+    private function tries_to_include_bad_files(String $code)
+    {
+        $filters = [
+            '#include "/',
+            '#include </',
+        ];
+        
+        $found = false;
 
+        foreach($filters as $filter)
+        {
+            if(strpos($code, $filter) !== false)
+                $found = true;
+        }
+        
+        return $found;
+    }
 }
