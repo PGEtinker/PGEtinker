@@ -233,10 +233,11 @@ let PGEtinker = function()
             if(response.data.success)
             {
                 elem_PlayerFrame.src = '/player';
-                setTimeout(function() { elem_PlayerStatus.className = ''; }, 1000);
-
-                // switch to information panel
-                FocusContainer(container_Console);
+                setTimeout(function()
+                {
+                    elem_PlayerStatus.className = '';
+                    FocusContainer(container_Console);
+                }, 1000);
             }
             else
             {
