@@ -7,10 +7,6 @@ let PGEtinker = function()
     // shim String to convert html entities
     String.prototype.toHtmlEntities = function() { return this.replace(/./gm, function(s) { return (s.match(/[a-z0-9\s]+/i)) ? s : "&#" + s.charCodeAt(0) + ";"; }); };
     
-    // retrieve the default code value
-    let defaultValue = $('#defaultCode').text();
-    $('#defaultCode').remove();
-
     // Editor Panel
     let monaco_Editor          = null;
     let monaco_EditorDecorator = null;
@@ -30,7 +26,15 @@ let PGEtinker = function()
     let elem_PlayerFrame  = null;
     let elem_PlayerStatus = null;
     let container_Player  = null;
-
+    
+    //  default to dark theme
+    if(!localStorage.getItem('pgeTinkerTheme'))
+    {
+        localStorage.setItem('pgeTinkerTheme', 'dark');
+    }
+    
+    let theme = localStorage.getItem('pgeTinkerTheme');
+    
     /*************************************************************************
      * LAYOUT CONFIGURATION
      *************************************************************************/
@@ -95,7 +99,7 @@ let PGEtinker = function()
     // Component: editor panel 
     goldenLayout_PGEtinker.registerComponent( 'editor', function( container, componentState )
     {
-        container.getElement().html(`<div id="editor-panel"><div class="menu"><ul><li><button type="button" onclick="PGEtinker.Share(); return false;">Share</button></li><li class="separator"></li><li><button type="button" onclick="PGEtinker.ResetLayout(); return false;">Reset Layout</button></li><li><button type="button" onclick="PGEtinker.Compile(); return false;">Build &amp; Run</button></li><li><button type="button" onclick="PGEtinker.RefreshPlayer(); return false;">Refresh Player</button></li></ul></div><div class="code-editor"></div></div>`);
+        container.getElement().html(`<div id="editor-panel"><div class="menu"><ul><li><button type="button" onclick="PGEtinker.ToggleTheme(); return false;">Toggle Theme</button></li><li><button type="button" onclick="PGEtinker.Share(); return false;">Share</button></li><li class="separator"></li><li><button type="button" onclick="PGEtinker.ResetLayout(); return false;">Reset Layout</button></li><li><button type="button" onclick="PGEtinker.Compile(); return false;">Build &amp; Run</button></li><li><button type="button" onclick="PGEtinker.RefreshPlayer(); return false;">Refresh Player</button></li></ul></div><div class="code-editor"></div></div>`);
         
         container.on('open', function()
         {
@@ -140,13 +144,16 @@ let PGEtinker = function()
         elem_Console      = document.querySelector('#console-panel div');
         elem_PlayerFrame  = document.querySelector('#player-panel iframe');
         elem_PlayerStatus = document.querySelector('#player-panel div');
-
+    
         // create code editor
         monaco_Editor = monaco.editor.create(elem_Editor, {
-            value: defaultValue,
+            value: $('#defaultCode').text(),
             language: 'cpp',
-            theme: 'vs-dark',
         });
+        
+        SetTheme();
+
+        $('#defaultCode').remove();
 
         // initialize code editor's decorations
         monaco_EditorDecorator = monaco_Editor.deltaDecorations([], []);
@@ -163,10 +170,13 @@ let PGEtinker = function()
             // guarantee we're processing a message coming from the player frame
             if(!(e.origin === 'null' && e.source === elem_PlayerFrame.contentWindow))
                 return;
-
+            
             // sanity check, is event set?
             if(e.data.event === undefined)
                 return;
+            
+            // send back theme
+            e.source.postMessage({theme: theme}, "*");
             
             // handle console clearing. 'pgetinker:console-clear' event dispatched from player iframe
             if(e.data.event === 'pgetinker:console-clear')
@@ -312,6 +322,33 @@ let PGEtinker = function()
         });
     }
 
+    function ToggleTheme()
+    {
+        if(theme === 'light')
+            SetTheme('dark');
+        else    
+            SetTheme('light');
+            
+    }
+    
+    function SetTheme(t)
+    {
+        t = (t !== undefined) ? t : theme;
+        
+        $('#layout-theme-css')[0].href= `/css/goldenlayout-${t}-theme.css`;
+        monaco_Editor.updateOptions({ theme: `vs-${t}` });
+        
+        // HACKABLE, but with limited payoff and scope, still.. look for better way
+        elem_PlayerFrame.contentWindow.postMessage({theme: t}, "*");
+        
+        // update storage
+        localStorage.setItem('pgeTinkerTheme', t);
+        
+        // update app state
+        theme = t;
+        document.querySelector('body').className = (theme == 'light') ? 'light' : '';
+    }
+
     function GotoAndFocus(line, column)
     {
         monaco_Editor.setPosition({ lineNumber: line, column: column });
@@ -326,6 +363,7 @@ let PGEtinker = function()
         RefreshPlayer: RefreshPlayer,
         ResetLayout: ResetLayout,
         Share: Share,
+        ToggleTheme: ToggleTheme,
     }
 
 }(); // PGEtinker

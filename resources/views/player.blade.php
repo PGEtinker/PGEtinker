@@ -16,6 +16,7 @@
         body {
             font-family: arial;
             background: #222;
+            color: #ded;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -23,6 +24,10 @@
             justify-content: center;
         }
 
+        .light {
+            background: #fff;
+            color: #000;
+        }
         #canvas {
             border: 0px none;
             background-color: black;
@@ -77,6 +82,20 @@
         window.parent.postMessage({
             event: 'pgetinker:console-clear',
         }, '{{ env('APP_URL') }}');
+        
+        window.addEventListener('message', function(e) {
+            
+            if(e.data.theme === undefined)
+                return;
+            
+            if(e.data.theme === 'light')
+            {
+                document.querySelector('body').className = 'light';
+                return;
+            }
+            
+            document.querySelector('body').className = '';
+        });
     </script>
     
     <script async type="text/javascript" src="data/{{ $pgeTinkerFilename }}.js"></script>
