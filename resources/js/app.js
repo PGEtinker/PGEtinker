@@ -12,20 +12,24 @@ let PGEtinker = function(){
     $('#defaultCode').remove();
 
     // Editor Panel
-    let monaco_Editor = null;
+    let monaco_Editor          = null;
     let monaco_EditorDecorator = null;
-    let elem_Editor = null;
+    let elem_Editor            = null;
+    let container_Editor       = null;
 
     // Information Panel
-    let elem_Information   = null;
-    let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): ([a-zA-Z0-9]+):/g;     
-    
+    let elem_Information      = null;
+    let container_Information = null;
+    let regExInfo = /(source.cpp|olcPixelGameEngine.h):([0-9]+):([0-9]+): (note|warning|error|fatal error):/g;     
+
     // Console Panel
-    let elem_Console = null;
+    let elem_Console      = null;
+    let container_Console = null;
 
     // Player Panel
     let elem_PlayerFrame  = null;
     let elem_PlayerStatus = null;
+    let container_Player  = null;
 
     /*************************************************************************
      * LAYOUT CONFIGURATION
@@ -69,12 +73,10 @@ let PGEtinker = function(){
                 }]
             }]
         })); // setItem(JSON.stringify(stuff))
-
     }
     
     // Golden Layout
     let goldenLayout_PGEtinker = new GoldenLayout(JSON.parse(localStorage.getItem('pgeTinkerSavedLayout')), $('#content'));
-
 
     /*************************************************************************
      * LAYOUT COMPONENTS
@@ -84,12 +86,21 @@ let PGEtinker = function(){
     goldenLayout_PGEtinker.registerComponent( 'console', function( container, componentState )
     {
         container.getElement().html( '<div id="console-panel"><div></div></div>' );
+        container.on('open', function()
+        {
+            container_Console = container.parent;
+        });
     });
 
     // Component: editor panel 
     goldenLayout_PGEtinker.registerComponent( 'editor', function( container, componentState )
     {
         container.getElement().html(`<div id="editor-panel"><div class="menu"><ul><li><button type="button" onclick="PGEtinker.Share(); return false;">Share</button></li><li class="separator"></li><li><button type="button" onclick="PGEtinker.ResetLayout(); return false;">Reset Layout</button></li><li><button type="button" onclick="PGEtinker.Compile(); return false;">Build &amp; Run</button></li><li><button type="button" onclick="PGEtinker.RefreshPlayer(); return false;">Refresh Player</button></li></ul></div><div class="code-editor"></div></div>`);
+        
+        container.on('open', function()
+        {
+            container_Editor = container.parent;
+        });
         
         container.on('resize', function()
         {
@@ -102,12 +113,20 @@ let PGEtinker = function(){
     goldenLayout_PGEtinker.registerComponent( 'info', function( container, componentState )
     {
         container.getElement().html( '<div id="info-panel" data-type="text/css"></div>' );
+        container.on('open', function()
+        {
+            container_Information = container.parent;
+        });
     });
 
     // Component: player panel
     goldenLayout_PGEtinker.registerComponent( 'player', function( container, componentState )
     {
         container.getElement().html( '<div id="player-panel"><iframe sandbox="allow-scripts" src="/player"></iframe><div></div></div>' );
+        container.on('open', function()
+        {
+            container_Player = container.parent;
+        });
     });
 
     /*************************************************************************
@@ -185,6 +204,12 @@ let PGEtinker = function(){
         elem_PlayerStatus.className = 'compiling';
         elem_Information.innerHTML = '';
         
+        // switch to information panel
+        if(container_Information.parent.type === 'stack')
+        {
+            container_Information.parent.setActiveContentItem(container_Information);
+        }
+        
         monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
         
         axios.post('/api/compile', {code: monaco_Editor.getModel().getValue()})
@@ -194,11 +219,18 @@ let PGEtinker = function(){
             {
                 elem_PlayerFrame.src = '/player';
                 setTimeout(function() { elem_PlayerStatus.className = ''; }, 1000);
+
+                // switch to information panel
+                if(container_Console.parent.type === 'stack')
+                {
+                    container_Console.parent.setActiveContentItem(container_Console);
+                }
             }
             else
             {
                 elem_PlayerStatus.className = 'fail';
             }
+            
     
             let info = new Array();
             let m    = null;
@@ -210,7 +242,7 @@ let PGEtinker = function(){
                     re.lastIndex++;
                 }
     
-                info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4] });
+                info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4].replace('fatal ', '') });
             }
             
             let out = response.data.messages;
