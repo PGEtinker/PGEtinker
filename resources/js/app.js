@@ -53,11 +53,13 @@ let PGEtinker = function()
                         componentName: 'editor',
                         componentState: { label: 'Editor Panel' },
                         isClosable: false,
+                        title: 'C++ Editor',
                     },{
                         type: 'component',
                         componentName: 'player',
                         componentState: { label: 'Player Panel' },
                         isClosable: false,
+                        title: 'Emscripten Player',
                     }]
                 },{
                     type: 'stack',
@@ -68,11 +70,13 @@ let PGEtinker = function()
                         componentName: 'info',
                         componentState: { label: 'Info Panel' },
                         isClosable: false,
+                        title: 'Compiler Information',
                     },{
                         type: 'component',
                         componentName: 'console',
                         componentState: { label: 'Console Panel' },
                         isClosable: false,
+                        title: 'Console Output',
                     }]
                 }]
             }]
