@@ -195,6 +195,14 @@ let PGEtinker = function()
     // initialize the layout
     goldenLayout_PGEtinker.init();
 
+    function FocusContainer(container)
+    {
+        if(container.parent.type === 'stack')
+        {
+            container.parent.setActiveContentItem(container);
+        }
+    }
+    
     /*************************************************************************
      * API FUNCTIONS
      *************************************************************************/
@@ -205,10 +213,7 @@ let PGEtinker = function()
         elem_Information.innerHTML = '';
         
         // switch to information panel
-        if(container_Information.parent.type === 'stack')
-        {
-            container_Information.parent.setActiveContentItem(container_Information);
-        }
+        FocusContainer(container_Information);
         
         monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
         
@@ -221,10 +226,7 @@ let PGEtinker = function()
                 setTimeout(function() { elem_PlayerStatus.className = ''; }, 1000);
 
                 // switch to information panel
-                if(container_Console.parent.type === 'stack')
-                {
-                    container_Console.parent.setActiveContentItem(container_Console);
-                }
+                FocusContainer(container_Console);
             }
             else
             {
