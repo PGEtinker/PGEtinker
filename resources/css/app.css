@@ -129,11 +129,11 @@ body {
     left: 0;
     bottom: 0;
     right: 0;
-    background: #222;
 }
 
 #player-panel div.loading {
     display: block;
+    background: #222;
 }
 
 #player-panel div.compiling {
@@ -206,7 +206,7 @@ body.light {
 }
 
 body.light #app,
-body.light #player-panel div {
+body.light #player-panel div.loading {
     background: #fff;
     color: #000;
 }
