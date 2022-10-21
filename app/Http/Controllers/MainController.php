@@ -55,6 +55,28 @@ class MainController extends Controller
         ]);
     }
     
+    public function get_code(Request $request)
+    {
+        $base_include_path = base_path() . '/shared/include';
+        $codeFile = str_replace('/api/code/', '', $request->getRequestUri());
+
+        if(strpos($codeFile, '../') !== false)
+            return [ "message" => "illegal file name", "success" => false, ];
+        
+        if(file_exists("{$base_include_path}/{$codeFile}"))
+        {
+            return [
+                "code" => file_get_contents("{$base_include_path}/{$codeFile}"),
+                "success" => true,
+            ];
+        }
+
+        return [
+            "message" => "file not found",
+            "success" => false,
+        ];
+    }
+
     // API Route: /compile
     public function build_and_run(Request $request)
     {

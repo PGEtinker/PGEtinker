@@ -14,7 +14,8 @@ use App\Http\Controllers\MainController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/code/{code}', [ MainController::class, "get_code" ]);
 
-Route::post('/reset',   [ MainController::class, "reset" ]);
-Route::post('/compile', [ MainController::class, "build_and_run" ]);
-Route::post('/share',   [ MainController::class, "build_and_share" ]);
+Route::post('/reset',       [ MainController::class, "reset" ]);
+Route::post('/compile',     [ MainController::class, "build_and_run" ]);
+Route::post('/share',       [ MainController::class, "build_and_share" ]);
