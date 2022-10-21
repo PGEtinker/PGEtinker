@@ -15,9 +15,6 @@ use App\Http\Controllers\MainController;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
+Route::post('/reset',   [ MainController::class, "reset" ]);
 Route::post('/compile', [ MainController::class, "build_and_run" ]);
 Route::post('/share',   [ MainController::class, "build_and_share" ]);

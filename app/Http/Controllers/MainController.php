@@ -63,6 +63,17 @@ class MainController extends Controller
         return $this->compile($request);
     }
     
+    // API Route: /reset
+    public function reset()
+    {
+        $base_data_path = base_path() . '/public/data/' . Session::get('pgeTinkerFilename');
+        
+        if(file_exists("{$base_data_path}.cpp"))  unlink("{$base_data_path}.cpp");
+        if(file_exists("{$base_data_path}.js"))   unlink("{$base_data_path}.js");
+        if(file_exists("{$base_data_path}.wasm")) unlink("{$base_data_path}.wasm");
+        return [];
+    }
+
     // API Route: /share
     public function build_and_share(Request $request)
     {
