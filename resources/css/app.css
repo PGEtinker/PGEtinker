@@ -93,11 +93,18 @@ body {
 #editor-panel .menu ul {
     position: absolute;
     top: 0;
-    right: 0;
     height: 32px;
     list-style-type: none;
     margin: 0;
     padding: 0;
+}
+
+#editor-panel .menu ul.editor-menu {
+    left: 0;
+}
+
+#editor-panel .menu ul.build-menu {
+    right: 0;
 }
 
 #editor-panel .menu ul li {

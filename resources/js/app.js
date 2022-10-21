@@ -121,15 +121,16 @@ let PGEtinker = function()
         container.getElement().html(`
 <div id="editor-panel">
     <div class="menu">
-        <ul>
+        <ul class="editor-menu">
             <li><button type="button" onclick="return PGEtinker.ResetCode();">Default Code</button></li>
             <li class="separator"></li>
             <li><button type="button" onclick="return PGEtinker.ToggleTheme();">Toggle Theme</button></li>
             <li><button type="button" onclick="return PGEtinker.ResetLayout();">Reset Layout</button></li>
-            <li class="separator"></li>
+        </ul>
+        <ul class="build-menu">
             <li><button type="button" onclick="return PGEtinker.Share();">Share</button></li>
             <li><button type="button" onclick="return PGEtinker.Compile();">Build &amp; Run</button></li>
-            <li><button type="button" onclick="return PGEtinker.RefreshPlayer();">Refresh Player</button></li>
+            <!--<li><button type="button" onclick="return PGEtinker.RefreshPlayer();">Refresh Player</button></li>-->
         </ul>
     </div>
     <div class="code-editor"></div>
