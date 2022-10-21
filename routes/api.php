@@ -20,4 +20,4 @@ use App\Http\Controllers\MainController;
 // });
 
 Route::post('/compile', [ MainController::class, "build_and_run" ]);
-Route::post('/share', [ MainController::class, "share" ]);
+Route::post('/share',   [ MainController::class, "build_and_share" ]);

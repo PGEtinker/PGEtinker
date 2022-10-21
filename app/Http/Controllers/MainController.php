@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use App\Models\Code;
+use Illuminate\Support\Str;
+use Kvz\YoutubeId\Converter;
 
 class MainController extends Controller
 {
-    
     // Web Route: /
     public function index(Request $request)
     {
@@ -23,11 +25,24 @@ class MainController extends Controller
     // Web Route: /{shared}
     public function shared(Request $request)
     {
-        // get code, put it into cpp file
-        $code = "#include <stdio.h>\n\nint main(int argc, char **argv)\n{\n\tprintf(\"Hello, World\\n\");\n\treturn 0;\n}\n";
-        file_put_contents(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.cpp', $code);
+        $codeSlug = ltrim($request->getRequestUri(), '/');
 
-        return redirect('/');
+        $code = Code::where('slug', $codeSlug)->first();
+        
+        if($code)
+        {
+            $base_data_path = base_path() . '/public/data/' . Session::get('pgeTinkerFilename');
+
+            if(file_exists("{$base_data_path}.js"))   unlink("{$base_data_path}.js");
+            if(file_exists("{$base_data_path}.wasm")) unlink("{$base_data_path}.wasm");
+
+            file_put_contents(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.cpp', $code->text);
+        }
+        
+        return view('app', [
+            'pgeTinkerFilename' => Session::get('pgeTinkerFilename'),
+            'code'              => $code->text,
+        ]);
     }
 
     // Web Route: /player
@@ -42,24 +57,6 @@ class MainController extends Controller
         ]);
     }
     
-    // API Route: GET /code/{id}
-    public function get_code(Request $request)
-    {
-
-    }
-    
-    // API ROUTE: POST /code
-    public function create_code(Request $request)
-    {
-
-    }
-    
-    // API ROUTE: PUT /code/{id}
-    public function update_code(Request $request)
-    {
-
-    }
-    
     // API Route: /compile
     public function build_and_run(Request $request)
     {
@@ -67,14 +64,27 @@ class MainController extends Controller
     }
     
     // API Route: /share
-    public function share(Request $request)
+    public function build_and_share(Request $request)
     {
-        $base_data_path = base_path() . '/public/data/' . Session::get('pgeTinkerFilename');
+        $compile = $this->compile($request);
+        $share   = [];
 
-        if(file_exists("{$base_data_path}.cpp") && file_exists("{$base_data_path}.js") && file_exists("{$base_data_path}.wasm"))
-            return ['message' => 'can share'];
+        // if we compiled successfully, let's actually store it
+        if($compile['success'])
+        {
+            $code = new Code;
+            $code->text = $request->get('code');
+            $code->slug = '';
+            $code->save();
+
+            $code->slug = Converter::toAlphanumeric($code->id, 11, env('APP_KEY'));
+            $code->save();
+
+            $share[ 'url' ] = env('APP_URL') . '/' . $code->slug;
+        }
         
-        return ['message' => 'can not world'];
+        // no matter what happens, we return the result
+        return array_merge($compile, $share);
     }
 
     private function compile(Request $request)
