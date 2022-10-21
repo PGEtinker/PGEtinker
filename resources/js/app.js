@@ -167,7 +167,22 @@ let PGEtinker = function()
             container_Player = container.parent;
         });
     });
-
+    
+    function LoadModel(fileName)
+    {
+        axios.get(`/api/code/${fileName}`).then(function(response)
+        {
+            if(response.data.success)
+            {
+                monaco.editor.createModel(response.data.code, 'cpp', fileName);
+            }
+        })
+        .catch(function (error)
+        {
+            console.log(error);
+        });
+    }
+    
     /*************************************************************************
      * LAYOUT INITIALIZAION
      *************************************************************************/
@@ -180,15 +195,26 @@ let PGEtinker = function()
         elem_PlayerFrame  = document.querySelector('#player-panel iframe');
         elem_PlayerStatus = document.querySelector('#player-panel div');
     
+        monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+            allowNonTsExtensions: true
+        });
+
         // create code editor
         monaco_Editor = monaco.editor.create(elem_Editor, {
-            value: $('#defaultCode').text(),
             language: 'cpp',
+            model: null,
         });
+
+        let defaultCode = $('#defaultCode').text().toString();
+        let model = monaco.editor.createModel(defaultCode, 'cpp');
+        monaco_Editor.setModel(model);
         
-        SetTheme();
+        LoadModel('olcPixelGameEngine.h');
 
         $('#defaultCode').remove();
+
+        SetTheme();
 
         monaco_Editor.onDidChangeModelContent(function(e)
         {
