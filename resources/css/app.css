@@ -7,7 +7,6 @@ body {
 }
 
 /* BLOCK LAYOUT */
-
 #app {
     position: fixed;
     top: 0;
@@ -94,11 +93,18 @@ body {
 #editor-panel .menu ul {
     position: absolute;
     top: 0;
-    right: 0;
     height: 32px;
     list-style-type: none;
     margin: 0;
     padding: 0;
+}
+
+#editor-panel .menu ul.editor-menu {
+    left: 0;
+}
+
+#editor-panel .menu ul.build-menu {
+    right: 0;
 }
 
 #editor-panel .menu ul li {
@@ -130,11 +136,11 @@ body {
     left: 0;
     bottom: 0;
     right: 0;
-    background: #222;
 }
 
 #player-panel div.loading {
     display: block;
+    background: #222;
 }
 
 #player-panel div.compiling {
@@ -199,3 +205,22 @@ body {
     color: #fff;
 }
 
+/* LIGHT THEME */
+
+body.light {
+    background: none;
+    color: #000;
+}
+
+body.light #app,
+body.light #player-panel div.loading {
+    background: #fff;
+    color: #000;
+}
+
+body.light #info-panel a:active,
+body.light #info-panel a:link,
+body.light #info-panel a:visited {
+    color:rgb(196, 99, 99);
+    text-decoration: none;
+}

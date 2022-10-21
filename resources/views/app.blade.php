@@ -10,7 +10,7 @@
         
         <script type="text/javascript" src="{{ mix('js/goldenlayout.min.js') }}"></script>
         <link type="text/css" rel="stylesheet" href="{{ mix('css/goldenlayout-base.css') }}">
-        <link type="text/css" rel="stylesheet" href="{{ mix('css/goldenlayout-dark-theme.css') }}">
+        <link id="layout-theme-css" type="text/css" rel="stylesheet" href="{{ mix('css/goldenlayout-dark-theme.css') }}">
     
         <link type="text/css" rel="stylesheet" href="{{ mix('css/app.css') }}">
     </head>

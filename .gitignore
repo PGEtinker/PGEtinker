@@ -19,6 +19,9 @@
 /public/ts.worker.js
 /public/ts.worker.js.LICENSE.txt
 
+# PHP Error Log Files
+php_errors.log
+
 /storage/*.key
 /vendor
 .env
