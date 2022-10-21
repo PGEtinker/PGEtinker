@@ -118,7 +118,22 @@ let PGEtinker = function()
     // Component: editor panel 
     goldenLayout_PGEtinker.registerComponent( 'editor', function( container, componentState )
     {
-        container.getElement().html(`<div id="editor-panel"><div class="menu"><ul><li><button type="button" onclick="PGEtinker.ToggleTheme(); return false;">Toggle Theme</button></li><li><button type="button" onclick="PGEtinker.Share(); return false;">Share</button></li><li class="separator"></li><li><button type="button" onclick="PGEtinker.ResetLayout(); return false;">Reset Layout</button></li><li><button type="button" onclick="PGEtinker.Compile(); return false;">Build &amp; Run</button></li><li><button type="button" onclick="PGEtinker.RefreshPlayer(); return false;">Refresh Player</button></li></ul></div><div class="code-editor"></div></div>`);
+        container.getElement().html(`
+<div id="editor-panel">
+    <div class="menu">
+        <ul>
+            <li><button type="button" onclick="return PGEtinker.ResetCode();">Default Code</button></li>
+            <li class="separator"></li>
+            <li><button type="button" onclick="return PGEtinker.ToggleTheme();">Toggle Theme</button></li>
+            <li><button type="button" onclick="return PGEtinker.ResetLayout();">Reset Layout</button></li>
+            <li class="separator"></li>
+            <li><button type="button" onclick="return PGEtinker.Share();">Share</button></li>
+            <li><button type="button" onclick="return PGEtinker.Compile();">Build &amp; Run</button></li>
+            <li><button type="button" onclick="return PGEtinker.RefreshPlayer();">Refresh Player</button></li>
+        </ul>
+    </div>
+    <div class="code-editor"></div>
+</div>`);
         
         container.on('open', function()
         {
@@ -332,6 +347,18 @@ let PGEtinker = function()
         });
     
     }
+    
+    function ResetCode()
+    {
+        // TODO: do this better, in a way that doesn't involve a refresh of the page
+        axios.post('/api/reset').then(function(response)
+        {
+            window.history.replaceState(null, 'PGEtinker', '/');
+            window.location.reload();
+        });
+        
+        return false;
+    }
 
     function RefreshPlayer()
     {
@@ -340,26 +367,53 @@ let PGEtinker = function()
         elem_Information.innerHTML = '';
         elem_PlayerFrame.src = '/player';
         setTimeout(function() { elem_PlayerStatus.className = ''; }, 1000);
+        
+        return false;
     }
 
     function ResetLayout()
     {
         window.localStorage.removeItem('pgeTinkerSavedLayout');
         window.location.reload();
+        
+        return false;
     }
     
     function Share()
     {
-        axios.post('/api/share')
+        elem_PlayerStatus.className = 'compiling';
+        elem_Information.innerHTML = '';
+
+        // this is here to replace the URL when you compile a share, after making a change to it.
+        if(editor_ChangedAfterLoad)
+        {
+            window.history.replaceState(null, 'PGEtinker', '/');
+        }
+
+        // switch to information panel
+        FocusContainer(container_Information);
+        
+        monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
+        
+        axios.post('/api/share', {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
-            console.log(response.data);
+            processCompilerResponse(response);
+            
+            if(!response.data.success)
+            {
+                return;
+            }
+            
+            window.history.replaceState(null, 'PGEtinker', response.data.url);
         })
         .catch(function(error)
         {
             // act like we care, spoiler alert, we don't
             console.log(error);
         });
+        
+        return false;
     }
 
     function ToggleTheme()
@@ -368,7 +422,8 @@ let PGEtinker = function()
             SetTheme('dark');
         else    
             SetTheme('light');
-            
+        
+        return false;    
     }
     
     function SetTheme(t)
@@ -404,8 +459,9 @@ let PGEtinker = function()
     return {
         Compile: Compile,
         GotoAndFocus: GotoAndFocus,
-        RefreshPlayer: RefreshPlayer,
+        ResetCode: ResetCode,
         ResetLayout: ResetLayout,
+        RefreshPlayer: RefreshPlayer,
         Share: Share,
         ToggleTheme: ToggleTheme,
     }
