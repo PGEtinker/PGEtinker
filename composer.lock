@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccbd816a07b206f971042295b899d1ba",
+    "content-hash": "75a9c64e08399ffbe36f66eab8b6cbb1",
     "packages": [
         {
             "name": "brick/math",
@@ -896,6 +896,75 @@
                 }
             ],
             "time": "2022-08-28T14:45:39+00:00"
+        },
+        {
+            "name": "kvz/youtube-id",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Moros1138/youtube-id",
+                "reference": "28da7cdda71cd1050625d3d97c9014470f5caddc"
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.14",
+                "phpunit/phpunit": ">=7.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Kvz\\YoutubeId\\": "src/"
+                },
+                "exclude-from-classmap": [
+                    "/tests/"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kevin van Zonneveld",
+                    "role": "lead",
+                    "email": "kevin@transloadit.com",
+                    "homepage": "https://github.com/kvz"
+                },
+                {
+                    "name": "Alexey Samara",
+                    "role": "developer",
+                    "email": "lion.samara@gmail.com",
+                    "homepage": "https://wow-apps.pro"
+                },
+                {
+                    "name": "Simon Franz",
+                    "role": "developer"
+                },
+                {
+                    "name": "Deadfish",
+                    "role": "developer"
+                },
+                {
+                    "name": "SK83RJOSH",
+                    "role": "developer"
+                }
+            ],
+            "description": "Translates a number to a short alphanumeric version",
+            "homepage": "https://github.com/kvz/youtube-id",
+            "keywords": [
+                "generator",
+                "id",
+                "id generator",
+                "youtube id"
+            ],
+            "support": {
+                "issues": "https://github.com/kvz/youtube-id/issues",
+                "wiki": "https://github.com/kvz/youtube-id/wiki",
+                "source": "https://github.com/kvz/youtube-id"
+            },
+            "time": "2022-09-26T12:09:05+00:00"
         },
         {
             "name": "laravel/framework",
@@ -7811,7 +7880,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "kvz/youtube-id": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

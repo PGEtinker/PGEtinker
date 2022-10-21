@@ -18,6 +18,11 @@
             background: #222;
             color: #ded;
         }
+
+        body.light {
+            background: #fff;
+            color: #000;
+        }
     </style>
 </head>
 
@@ -26,6 +31,25 @@
     <p>Inspiring Quote? Instructions? Who needs 'em!</p>
     <p>Let's just jump into some code and read the docs later!</p>
     <p>What do you mean? There's no docs?.... Hmmm interesting.</p>
+    <script>
+    window.parent.postMessage({
+        event: 'pgetinker:no-player',
+    }, '{{ env('APP_URL') }}');
+    
+    window.addEventListener('message', function(e) {
+            
+            if(e.data.theme === undefined)
+                return;
+            
+            if(e.data.theme === 'light')
+            {
+                document.querySelector('body').className = 'light';
+                return;
+            }
+            
+            document.querySelector('body').className = '';
+        });
+    </script>
 </body>
 </html>
        
