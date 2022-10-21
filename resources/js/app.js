@@ -240,6 +240,66 @@ let PGEtinker = function()
         }
     }
     
+    function processCompilerResponse(response)
+    {
+        if(response.data.success)
+        {
+            elem_PlayerFrame.src = '/player';
+            setTimeout(function()
+            {
+                elem_PlayerStatus.className = '';
+                FocusContainer(container_Console);
+            }, 1000);
+        }
+        else
+        {
+            elem_PlayerStatus.className = 'fail';
+        }
+        
+
+        let info = new Array();
+        let m    = null;
+        
+        while((m = regExInfo.exec(response.data.messages)) !== null)
+        {
+            if (m.index === regExInfo.lastIndex)
+            {
+                re.lastIndex++;
+            }
+
+            info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4].replace('fatal ', '') });
+        }
+        
+        let out = response.data.messages;
+        var entries = [];
+        
+        info.forEach(function(item)
+        {
+
+            if(item.input.indexOf('source.cpp') === 0)
+            {
+                out = out.replace(item.input, `<a href="#" onclick="PGEtinker.GotoAndFocus(${item.line}, ${item.column}); return false;">${item.input}</a>`);
+                
+                // add the decoration
+                entries.push({
+                    range: new monaco.Range(item.line, 1, item.line, 2),
+                    options: {
+                        isWholeLine: true,
+                        className: 'editor-'+item.type,
+                    }
+                });
+                
+            }
+                
+            if(item.input.indexOf('olcPixelGameEngine.h') === 0)
+                out = out.replace(item.input, `<a href="https://github.com/OneLoneCoder/olcPixelGameEngine/blob/develop/olcPixelGameEngine.h#L${item.line}" target="_blank">${item.input}</a>`);
+        });
+        
+        elem_Information.innerHTML = out;
+        monaco_EditorDecorator = monaco_Editor.deltaDecorations([], entries);
+    }
+
+
     /*************************************************************************
      * API FUNCTIONS
      *************************************************************************/
@@ -249,6 +309,12 @@ let PGEtinker = function()
         elem_PlayerStatus.className = 'compiling';
         elem_Information.innerHTML = '';
         
+        // this is here to replace the URL when you compile a share, after making a change to it.
+        if(editor_ChangedAfterLoad)
+        {
+            window.history.replaceState(null, 'PGEtinker', '/');
+        }
+            
         // switch to information panel
         FocusContainer(container_Information);
         
@@ -257,61 +323,7 @@ let PGEtinker = function()
         axios.post('/api/compile', {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
-            if(response.data.success)
-            {
-                elem_PlayerFrame.src = '/player';
-                setTimeout(function()
-                {
-                    elem_PlayerStatus.className = '';
-                    FocusContainer(container_Console);
-                }, 1000);
-            }
-            else
-            {
-                elem_PlayerStatus.className = 'fail';
-            }
-            
-    
-            let info = new Array();
-            let m    = null;
-            
-            while((m = regExInfo.exec(response.data.messages)) !== null)
-            {
-                if (m.index === regExInfo.lastIndex)
-                {
-                    re.lastIndex++;
-                }
-    
-                info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4].replace('fatal ', '') });
-            }
-            
-            let out = response.data.messages;
-            var entries = [];
-            
-            info.forEach(function(item)
-            {
-    
-                if(item.input.indexOf('source.cpp') === 0)
-                {
-                    out = out.replace(item.input, `<a href="#" onclick="PGEtinker.GotoAndFocus(${item.line}, ${item.column}); return false;">${item.input}</a>`);
-                    
-                    // add the decoration
-                    entries.push({
-                        range: new monaco.Range(item.line, 1, item.line, 2),
-                        options: {
-                            isWholeLine: true,
-                            className: 'editor-'+item.type,
-                        }
-                    });
-                    
-                }
-                    
-                if(item.input.indexOf('olcPixelGameEngine.h') === 0)
-                    out = out.replace(item.input, `<a href="https://github.com/OneLoneCoder/olcPixelGameEngine/blob/develop/olcPixelGameEngine.h#L${item.line}" target="_blank">${item.input}</a>`);
-            });
-            
-            elem_Information.innerHTML = out;
-            monaco_EditorDecorator = monaco_Editor.deltaDecorations([], entries);
+            processCompilerResponse(response);
         })
         .catch(function(error)
         {
