@@ -32,6 +32,9 @@
             border: 0px none;
             background-color: black;
         }
+        #canvas:focus {
+            outline: none;
+        }
     </style>
 </head>
 
