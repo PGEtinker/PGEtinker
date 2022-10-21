@@ -14,5 +14,6 @@ use App\Http\Controllers\MainController;
 |
 */
 
-Route::get('/player', [ MainController::class, "player" ]);
-Route::get('/', [ MainController::class, "index" ]);
+Route::get('/player',   [ MainController::class, "player" ]);
+Route::get('/{shared}', [ MainController::class, "shared" ]);
+Route::get('/',         [ MainController::class, "index" ]);

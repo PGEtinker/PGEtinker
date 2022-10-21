@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
  
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class MainController extends Controller
 {
     
     // Web Route: /
-    public function index()
+    public function index(Request $request)
     {
         return view('app', [
             'pgeTinkerFilename' => Session::get('pgeTinkerFilename'),
@@ -19,18 +20,27 @@ class MainController extends Controller
         ]);
     }
     
+    // Web Route: /{shared}
+    public function shared(Request $request)
+    {
+        // get code, put it into cpp file
+        $code = "#include <stdio.h>\n\nint main(int argc, char **argv)\n{\n\tprintf(\"Hello, World\\n\");\n\treturn 0;\n}\n";
+        file_put_contents(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.cpp', $code);
+
+        return redirect('/');
+    }
+
     // Web Route: /player
     public function player()
     {
         // if we don't have a compiled version to display, show the intro screen
         if(!file_exists(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.js'))
             return view('player-intro');
-        
+            
         return view('player', [
             'pgeTinkerFilename' => Session::get('pgeTinkerFilename'),
         ]);
     }
-    
     
     // API Route: GET /code/{id}
     public function get_code(Request $request)
