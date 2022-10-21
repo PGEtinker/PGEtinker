@@ -22,11 +22,12 @@ let PGEtinker = function()
     String.prototype.toHtmlEntities = function() { return this.replace(/./gm, function(s) { return (s.match(/[a-z0-9\s]+/i)) ? s : "&#" + s.charCodeAt(0) + ";"; }); };
     
     // Editor Panel
-    let monaco_Editor          = null;
-    let monaco_EditorDecorator = null;
-    let elem_Editor            = null;
-    let container_Editor       = null;
-
+    let monaco_Editor           = null;
+    let monaco_EditorDecorator  = null;
+    let elem_Editor             = null;
+    let container_Editor        = null;
+    let editor_ChangedAfterLoad = false;
+    
     // Information Panel
     let elem_Information      = null;
     let container_Information = null;
@@ -172,6 +173,14 @@ let PGEtinker = function()
         SetTheme();
 
         $('#defaultCode').remove();
+
+        monaco_Editor.onDidChangeModelContent(function(e)
+        {
+            if(editor_ChangedAfterLoad)
+                return;
+            
+            editor_ChangedAfterLoad = true;
+        });
 
         // initialize code editor's decorations
         monaco_EditorDecorator = monaco_Editor.deltaDecorations([], []);
