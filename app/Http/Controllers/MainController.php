@@ -25,21 +25,23 @@ class MainController extends Controller
     {
         $codeSlug = ltrim($request->getRequestUri(), '/');
 
-        $code = Code::where('slug', $codeSlug)->first();
-        
-        if($code)
+        $codeFromDB = Code::where('slug', $codeSlug)->first();
+        $code = '';
+
+        if($codeFromDB)
         {
             $base_data_path = base_path() . '/public/data/' . Session::get('pgeTinkerFilename');
 
             if(file_exists("{$base_data_path}.js"))   unlink("{$base_data_path}.js");
             if(file_exists("{$base_data_path}.wasm")) unlink("{$base_data_path}.wasm");
 
-            file_put_contents(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.cpp', $code->text);
+            file_put_contents(base_path() . '/public/data/'. Session::get('pgeTinkerFilename') . '.cpp', $codeFromDB->text);
+            $code = $codeFromDB->text;
         }
         
         return view('app', [
             'pgeTinkerFilename' => Session::get('pgeTinkerFilename'),
-            'code'              => $code->text,
+            'code'              => $code,
         ]);
     }
 
@@ -55,6 +57,28 @@ class MainController extends Controller
         ]);
     }
     
+    public function get_code(Request $request)
+    {
+        $base_include_path = base_path() . '/shared/include';
+        $codeFile = str_replace('/api/code/', '', $request->getRequestUri());
+
+        if(strpos($codeFile, '../') !== false)
+            return [ "message" => "illegal file name", "success" => false, ];
+        
+        if(file_exists("{$base_include_path}/{$codeFile}"))
+        {
+            return [
+                "code" => file_get_contents("{$base_include_path}/{$codeFile}"),
+                "success" => true,
+            ];
+        }
+
+        return [
+            "message" => "file not found",
+            "success" => false,
+        ];
+    }
+
     // API Route: /compile
     public function build_and_run(Request $request)
     {
