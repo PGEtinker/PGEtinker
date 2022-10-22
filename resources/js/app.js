@@ -1,10 +1,11 @@
 import './bootstrap';
-import version from './version';
+import {apiVersion, version} from './version';
 
 import * as monaco from 'monaco-editor';
 import axios from 'axios';
 
 console.log(`PGEtinker v${version}`);
+console.log(`PGEtinker API v${apiVersion}`);
 
 let PGEtinker = function()
 {
@@ -170,7 +171,7 @@ let PGEtinker = function()
     
     function LoadModel(fileName)
     {
-        axios.get(`/api/code/${fileName}`).then(function(response)
+        axios.get(`/api/v${apiVersion}/code/${fileName}`).then(function(response)
         {
             if(response.data.success)
             {
@@ -357,7 +358,7 @@ let PGEtinker = function()
         
         monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
         
-        axios.post('/api/compile', {code: monaco_Editor.getModel().getValue()})
+        axios.post(`/api/v${apiVersion}/compile`, {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
             processCompilerResponse(response);
@@ -373,7 +374,7 @@ let PGEtinker = function()
     function ResetCode()
     {
         // TODO: do this better, in a way that doesn't involve a refresh of the page
-        axios.post('/api/reset').then(function(response)
+        axios.post(`/api/v${apiVersion}/reset`).then(function(response)
         {
             window.history.replaceState(null, 'PGEtinker', '/');
             window.location.reload();
@@ -417,7 +418,7 @@ let PGEtinker = function()
         
         monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
         
-        axios.post('/api/share', {code: monaco_Editor.getModel().getValue()})
+        axios.post(`/api/v${apiVersion}/share`, {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
             processCompilerResponse(response);
