@@ -182,7 +182,7 @@ let PGEtinker = function()
             console.log(error);
         });
     }
-    
+
     /*************************************************************************
      * LAYOUT INITIALIZAION
      *************************************************************************/
@@ -195,11 +195,6 @@ let PGEtinker = function()
         elem_PlayerFrame  = document.querySelector('#player-panel iframe');
         elem_PlayerStatus = document.querySelector('#player-panel div');
     
-        monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-        monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-            allowNonTsExtensions: true
-        });
-
         // create code editor
         monaco_Editor = monaco.editor.create(elem_Editor, {
             language: 'cpp',
