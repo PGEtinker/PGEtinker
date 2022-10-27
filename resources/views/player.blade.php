@@ -101,7 +101,7 @@
         });
     </script>
     
-    <script async type="text/javascript" src="data/{{ $pgeTinkerFilename }}.js"></script>
+    <script async type="text/javascript" src="/data/{{ $pgeTinkerFilename }}.js"></script>
 </body>
 
 </html>
