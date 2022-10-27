@@ -15,7 +15,6 @@
         <link type="text/css" rel="stylesheet" href="{{ mix('css/app.css') }}">
     </head>
     <body>
-        <div id="defaultCode" style="display:none;">{{ $code }}</div>
         <div id="app">
             <div id="header">
                 <a href="/">
@@ -35,6 +34,7 @@
                 Haven't quite decided what should go here, probably a copyright notice or perhaps a whitty quote.
             </div>
         </div>
+        <script type="text/javascript">let pgeTinkerShareSlug = '{{ $slug }}';</script>
         <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
     </body>
 </html>

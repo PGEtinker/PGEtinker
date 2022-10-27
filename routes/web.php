@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MainController;
+use App\Http\Controllers\PageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +14,8 @@ use App\Http\Controllers\MainController;
 |
 */
 
-Route::get('/player',   [ MainController::class, "player" ]);
-Route::get('/{shared}', [ MainController::class, "shared" ]);
-Route::get('/',         [ MainController::class, "index" ]);
+Route::get('/player',            [ PageController::class, "player" ]);
+Route::get('/player/{filename}', [ PageController::class, "player" ]);
+
+Route::get('/{slug}',            [ PageController::class, "shared"  ]);
+Route::get('/',                  [ PageController::class, "index"  ]);

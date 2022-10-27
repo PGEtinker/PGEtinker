@@ -1,18 +1,23 @@
 import './bootstrap';
-import version from './version';
+import {apiVersion, version} from './version';
 
 import * as monaco from 'monaco-editor';
 import axios from 'axios';
 
 console.log(`PGEtinker v${version}`);
+console.log(`PGEtinker Slug: ${pgeTinkerShareSlug}`);
 
 let PGEtinker = function()
 {
     // handle version changes
     if(localStorage.getItem('pgeTinkerVersion') != version)
     {
-        localStorage.removeItem('pgeTinkerSavedLayout');
-        localStorage.removeItem('pgeTinkerTheme');
+        // clear all pgeTinker entries
+        for(let i = 0; i < localStorage.length; i++)
+        {
+            if(localStorage.key(i).indexOf('pgeTinker') === 0)
+                localStorage.removeItem(localStorage.key(i))
+        }
         
         // update the version
         localStorage.setItem('pgeTinkerVersion', version);
@@ -41,6 +46,13 @@ let PGEtinker = function()
     let elem_PlayerFrame  = null;
     let elem_PlayerStatus = null;
     let container_Player  = null;
+    
+    let player_Filename   = (localStorage.getItem('pgeTinkerWasmFilename')) ? localStorage.getItem('pgeTinkerWasmFilename') : '';
+    
+    // if shared, use that instead of the saved file name
+    player_Filename       = (pgeTinkerShareSlug !== 'null') ? pgeTinkerShareSlug : player_Filename;
+
+    console.log(player_Filename);
     
     //  default to dark theme
     if(!localStorage.getItem('pgeTinkerTheme'))
@@ -161,27 +173,31 @@ let PGEtinker = function()
     // Component: player panel
     goldenLayout_PGEtinker.registerComponent( 'player', function( container, componentState )
     {
-        container.getElement().html( '<div id="player-panel"><iframe sandbox="allow-scripts" src="/player"></iframe><div></div></div>' );
+        container.getElement().html( `
+<div id="player-panel">
+    <iframe sandbox="allow-scripts" src="/player${(player_Filename != '') ? '/'+player_Filename : ''}"></iframe>
+    <div></div>
+</div>` );
         container.on('open', function()
         {
             container_Player = container.parent;
         });
     });
     
-    function LoadModel(fileName)
-    {
-        axios.get(`/api/code/${fileName}`).then(function(response)
-        {
-            if(response.data.success)
-            {
-                monaco.editor.createModel(response.data.code, 'cpp', fileName);
-            }
-        })
-        .catch(function (error)
-        {
-            console.log(error);
-        });
-    }
+    // function LoadModel(fileName)
+    // {
+    //     axios.get(`/api/v${apiVersion}/code/${fileName}`).then(function(response)
+    //     {
+    //         if(response.data.success)
+    //         {
+    //             monaco.editor.createModel(response.data.code, 'cpp', fileName);
+    //         }
+    //     })
+    //     .catch(function (error)
+    //     {
+    //         console.log(error);
+    //     });
+    // }
 
     /*************************************************************************
      * LAYOUT INITIALIZAION
@@ -201,18 +217,44 @@ let PGEtinker = function()
             model: null,
         });
 
-        let defaultCode = $('#defaultCode').text().toString();
-        let model = monaco.editor.createModel(defaultCode, 'cpp');
-        monaco_Editor.setModel(model);
-        
-        LoadModel('olcPixelGameEngine.h');
+        // create model for monaco_Editor
+        monaco_Editor.setModel(monaco.editor.createModel('', 'cpp'));
 
-        $('#defaultCode').remove();
+        if(pgeTinkerShareSlug === 'null')
+        {
+            if(!localStorage.getItem('pgeTinkerSourceText'))
+            {
+                ResetCode();
+            }
+            else
+            {
+                monaco_Editor.getModel().setValue(JSON.parse(localStorage.getItem('pgeTinkerSourceText')));
+            }
+        }
+        else
+        {
+            axios.get(`/api/code/${pgeTinkerShareSlug}`)
+            .then(function(response)
+            {
+                if(response.data.success)
+                    monaco_Editor.getModel().setValue(response.data.code);
+            })
+            .catch(function(error)
+            {
+                // pretend that we care, we really don't
+                console.log(error);
+            });
+        }
+
+        // LoadModel('olcPixelGameEngine.h');
 
         SetTheme();
 
         monaco_Editor.onDidChangeModelContent(function(e)
         {
+            // save the source text to the localStorage as it's entered
+            localStorage.setItem('pgeTinkerSourceText', JSON.stringify(monaco_Editor.getModel().getValue()));
+
             if(editor_ChangedAfterLoad)
                 return;
             
@@ -279,25 +321,20 @@ let PGEtinker = function()
     
     function processCompilerResponse(response)
     {
+        
         if(response.data.success)
         {
-            elem_PlayerFrame.src = '/player';
-            setTimeout(function()
-            {
-                elem_PlayerStatus.className = '';
-                FocusContainer(container_Console);
-            }, 1000);
+            return true;
         }
         else
         {
             elem_PlayerStatus.className = 'fail';
         }
-        
 
         let info = new Array();
         let m    = null;
         
-        while((m = regExInfo.exec(response.data.messages)) !== null)
+        while((m = regExInfo.exec(response.data.message)) !== null)
         {
             if (m.index === regExInfo.lastIndex)
             {
@@ -307,7 +344,7 @@ let PGEtinker = function()
             info.push({ input: m[0], line: parseInt(m[2]), column: parseInt(m[3]), type: m[4].replace('fatal ', '') });
         }
         
-        let out = response.data.messages;
+        let out = response.data.message;
         var entries = [];
         
         info.forEach(function(item)
@@ -334,6 +371,8 @@ let PGEtinker = function()
         
         elem_Information.innerHTML = out;
         monaco_EditorDecorator = monaco_Editor.deltaDecorations([], entries);
+        
+        return false;
     }
 
 
@@ -357,10 +396,20 @@ let PGEtinker = function()
         
         monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
         
-        axios.post('/api/compile', {code: monaco_Editor.getModel().getValue()})
+        axios.post(`/api/compile`, {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
-            processCompilerResponse(response);
+            if(processCompilerResponse(response))
+            {
+                player_Filename = response.data.filename;
+                localStorage.setItem('pgeTinkerWasmFilename', player_Filename);
+                elem_PlayerFrame.src = `/player/${player_Filename}`;
+                setTimeout(function()
+                {
+                    elem_PlayerStatus.className = '';
+                    FocusContainer(container_Console);
+                }, 1000);
+            }
         })
         .catch(function(error)
         {
@@ -372,13 +421,18 @@ let PGEtinker = function()
     
     function ResetCode()
     {
-        // TODO: do this better, in a way that doesn't involve a refresh of the page
-        axios.post('/api/reset').then(function(response)
+        axios.get('/api/default-code')
+        .then(function(response)
         {
-            window.history.replaceState(null, 'PGEtinker', '/');
-            window.location.reload();
+            if(response.data.success)
+                monaco_Editor.getModel().setValue(response.data.code);
+        })
+        .catch(function(error)
+        {
+            // pretend that we care, we really don't
+            console.log(error);
         });
-        
+
         return false;
     }
 
@@ -387,7 +441,7 @@ let PGEtinker = function()
         elem_PlayerStatus.className = 'loading';
         
         elem_Information.innerHTML = '';
-        elem_PlayerFrame.src = '/player';
+        elem_PlayerFrame.src = `/player/${player_Filename}`;
         setTimeout(function() { elem_PlayerStatus.className = ''; }, 1000);
         
         return false;
@@ -417,7 +471,7 @@ let PGEtinker = function()
         
         monaco_EditorDecorator = monaco_Editor.deltaDecorations(monaco_EditorDecorator, []);
         
-        axios.post('/api/share', {code: monaco_Editor.getModel().getValue()})
+        axios.post(`/api/share`, {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
             processCompilerResponse(response);
@@ -427,7 +481,21 @@ let PGEtinker = function()
                 return;
             }
             
-            window.history.replaceState(null, 'PGEtinker', response.data.url);
+            player_Filename = response.data.slug;
+            localStorage.setItem('pgeTinkerWasmFilename', player_Filename);
+            elem_PlayerFrame.src = `/player/${player_Filename}`;
+            setTimeout(function()
+            {
+                elem_PlayerStatus.className = '';
+                FocusContainer(container_Console);
+            }, 1000);
+
+
+            // setTimeout(function()
+            // {
+                window.history.replaceState(null, 'PGEtinker', response.data.url);
+                // window.location.reload();
+            // }, 500);
         })
         .catch(function(error)
         {
