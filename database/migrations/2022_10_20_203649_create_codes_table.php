@@ -15,12 +15,13 @@ return new class extends Migration
     {
         Schema::create('codes', function (Blueprint $table) {
             $table->id();
+            $table->longText('source_text')->nullable();
+            $table->string('hash_text', 64)->nullable();
+            $table->string('slug', 32)->nullable();
             $table->timestamps();
-            $table->string('slug');
-            $table->longText('text');
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
