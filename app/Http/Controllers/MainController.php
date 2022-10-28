@@ -126,11 +126,13 @@ class MainController extends Controller
         // thanks Ciarán for pointing out this was needed
         if($this->tries_to_include_bad_files($request->get('code')))
         {
+            Log::info('BUILD: attempted to include invalid header');
+
             // your fans await your greatness!
-            return response([
-                'messages'  => "Ah ah ah, you tried to include a file you're not supposed to see.",
+            return [
+                'message'  => "Ah ah ah, you tried to include a file you're not supposed to see.",
                 'success' => false,
-            ], 400);
+            ];
         }
         
         // create a temp file
@@ -196,6 +198,13 @@ class MainController extends Controller
 
         // filter filename
         $filename = str_replace(base_path() . "/public/data/", "", $filename);
+        
+        if($success)
+            Log::info("BUILD: success");
+        else
+            Log::info("BUILD: fail");
+
+        Log::info($out);
 
         return [
             "filename" => $filename,
@@ -207,20 +216,23 @@ class MainController extends Controller
     // thanks Ciarán for pointing out this was needed
     private function tries_to_include_bad_files(String $code)
     {
-        $filters = [
-            '#include "/',
-            '#include </',
-        ];
-        
-        $found = false;
+        // find all #include directives
+        preg_match_all("/#include ?(\"|<)(.*)(\"|>)/", $code, $matches);
 
-        foreach($filters as $filter)
+        if(count($matches) == 4)
         {
-            if(strpos($code, $filter) !== false)
-                $found = true;
-        }
+            if(count($matches[2]) > 0)
+            {
+                foreach($matches[2] as $match)
+                {
+                    if(strpos($match, "..") !== false) return true;
+                    if(strpos($match, "~/") !== false) return true;
+                    if(strpos($match, "/")  === 0) return true;
+                }
+            }
+        } // do we have any #include directives, at all
         
-        return $found;
+        return false;
     }
 
 }
