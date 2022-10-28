@@ -55,6 +55,8 @@ class MainController extends Controller
             
         }
         
+        Log::info("Shared: " . env('APP_URL') . "/{$code->slug}");
+
         // if we make it here, we need to create one!
         return [
             'success' => true,
@@ -67,11 +69,18 @@ class MainController extends Controller
     // GET /api/code/{slug}
     public function GetCode(String $slug)
     {
-        $code = Code::where('slug', $slug)->first();
+        Log::info("GET /api/code/{$slug}");
         
+        $code = Code::find(Converter::toNumeric($slug, 11, env('APP_KEY')));
+         
         // if no code exists, 404
         if($code == null)
+        {
+            Log::info("not found");
             return response([ "message" => "not found", "success" => false ], 404);
+        }
+            
+        Log::info("found");
         
         // otherwise return code
         return response([ "code" => $code->source_text, "success" => true ], 200);
