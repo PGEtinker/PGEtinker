@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.20              |
+	|           OneLoneCoder Pixel Game Engine v2.21              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -303,6 +303,7 @@
 	2.20: +DrawRectDecal() - Keeps OneSketchyGuy quiet
 	      +GetScreenSize()
 		  +olc::Sprite::Size() - returns size of sprite in vector format
+	2.21: Emscripten Overhaul - Thanks Moros!
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -382,7 +383,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 220
+#define PGE_VER 221
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -4261,7 +4262,7 @@ namespace olc
 			wglMakeCurrent(glDeviceContext, glRenderContext);
 
 			// Set Vertical Sync
-			locSwapInterval = OGL_LOAD(locSwapInterval_t, "wglSwapIntervalEXT");
+			locSwapInterval = OGL_LOAD(locSwapInterval_t, wglSwapIntervalEXT);
 			if (locSwapInterval && !bVSYNC) locSwapInterval(0);
 			bSync = bVSYNC;
 #endif
@@ -4281,7 +4282,7 @@ namespace olc
 			XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
 			glViewport(0, 0, gwa.width, gwa.height);
 
-			locSwapInterval = OGL_LOAD(locSwapInterval_t, "glXSwapIntervalEXT");
+			locSwapInterval = OGL_LOAD(locSwapInterval_t, glXSwapIntervalEXT);
 
 			if (locSwapInterval == nullptr && !bVSYNC)
 			{
@@ -4474,14 +4475,12 @@ namespace olc
 			{
 				switch (mode)
 				{
-				case olc::DecalMode::MODEL3D: // silence warning
 				case olc::DecalMode::NORMAL: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
 				case olc::DecalMode::ADDITIVE: glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
 				case olc::DecalMode::MULTIPLICATIVE: glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);	break;
 				case olc::DecalMode::STENCIL: glBlendFunc(GL_ZERO, GL_SRC_ALPHA); break;
 				case olc::DecalMode::ILLUMINATE: glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);	break;
 				case olc::DecalMode::WIREFRAME: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
-				
 				}
 
 				nDecalMode = mode;
