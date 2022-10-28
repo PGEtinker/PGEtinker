@@ -17,5 +17,6 @@ use App\Http\Controllers\PageController;
 Route::get('/player',            [ PageController::class, "player" ]);
 Route::get('/player/{filename}', [ PageController::class, "player" ]);
 
+Route::get('/s/{filename}',      [ PageController::class, "player"]);
 Route::get('/{slug}',            [ PageController::class, "shared"  ]);
 Route::get('/',                  [ PageController::class, "index"  ]);

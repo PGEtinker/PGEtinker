@@ -227,7 +227,7 @@ class MainController extends Controller
                 {
                     if(strpos($match, "..") !== false) return true;
                     if(strpos($match, "~/") !== false) return true;
-                    if(strpos($match, "/")  === 0) return true;
+                    if(strpos($match, "/")  === 0)     return true;
                 }
             }
         } // do we have any #include directives, at all
