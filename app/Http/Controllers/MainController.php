@@ -98,9 +98,19 @@ class MainController extends Controller
         return $this->build_and_report($request);
     }
     
-    
     private function build_and_report(Request $request)
     {
+        if(strlen($request->get('code')) > 50000)
+        {
+            Log::info('BUILD: attempted compile excessively sized code');
+            
+            return [
+                'filename' => '',
+                'message'  => 'Source code in excess of 50,000 characters.',
+                'success' => false,
+            ];
+        }
+        
         $base_data_path = base_path() . '/public/data';
         
         // cache original directory

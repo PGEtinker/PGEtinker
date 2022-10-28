@@ -252,6 +252,13 @@ let PGEtinker = function()
 
         monaco_Editor.onDidChangeModelContent(function(e)
         {
+            
+            if(monaco_Editor.getModel().getValueLength() > 50000)
+            {
+                alert('You are exceeding the reasonable limit of 50,000 characters.');
+                return;
+            }
+
             // save the source text to the localStorage as it's entered
             localStorage.setItem('pgeTinkerSourceText', JSON.stringify(monaco_Editor.getModel().getValue()));
 
