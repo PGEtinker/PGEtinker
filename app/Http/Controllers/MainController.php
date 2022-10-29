@@ -158,9 +158,11 @@ class MainController extends Controller
         // write the source file
         file_put_contents("{$filename}.cpp", $request->get('code'));
 
+        $docker_filename = str_replace("{$base_data_path}/", "/src/", $filename);
+
         // open a process to our custom build script, pipe stdout/stderr streams
         $process = proc_open(
-            base_path() . "/build-script.sh {$filename}", // command
+            base_path() . "/build-script.sh {$docker_filename}", // command
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],     // define pipes
             $pipes                                        // handle for pipe streams
         );
@@ -186,12 +188,12 @@ class MainController extends Controller
         unlink("{$filename}.cpp");
 
         // filter out stuff the end user doesn't need to know
-        $out = str_replace("{$filename}.js", "source.js", $out);
-        $out = str_replace("{$filename}.wasm", "source.wasm", $out);
-        $out = str_replace("{$filename}.cpp", "source.cpp", $out);
+        $out = str_replace("{$docker_filename}.js", "source.js", $out);
+        $out = str_replace("{$docker_filename}.wasm", "source.wasm", $out);
+        $out = str_replace("{$docker_filename}.cpp", "source.cpp", $out);
 
-        $out = str_replace(base_path() . '/shared/include/', "", $out);
-        $out = str_replace(base_path() . '/shared/include' , "include", $out);
+        $out = str_replace("/src/third-party/olcPixelGameEngine/", "", $out);
+        $out = str_replace("/src/third-party/olcSoundWaveEngine/", "", $out);
 
         // did we compile succcessfully?
         $success = file_exists("{$filename}.js") && file_exists("{$filename}.wasm");
@@ -219,18 +221,18 @@ class MainController extends Controller
         // find all #include directives
         preg_match_all("/#include ?(\"|<)(.*)(\"|>)/", $code, $matches);
 
-        if(count($matches) == 4)
+        if(count($matches) != 4)
+            return false;
+        
+        if(count($matches[2]) > 0)
         {
-            if(count($matches[2]) > 0)
+            foreach($matches[2] as $match)
             {
-                foreach($matches[2] as $match)
-                {
-                    if(strpos($match, "..") !== false) return true;
-                    if(strpos($match, "~/") !== false) return true;
-                    if(strpos($match, "/")  === 0)     return true;
-                }
+                if(strpos($match, "..") !== false) return true;
+                if(strpos($match, "~/") !== false) return true;
+                if(strpos($match, "/")  === 0)     return true;
             }
-        } // do we have any #include directives, at all
+        }
         
         return false;
     }
