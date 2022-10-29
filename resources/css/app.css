@@ -167,6 +167,9 @@ body {
     font-feature-settings: "liga" 0, "calt" 0;
     line-height: 19px;
     letter-spacing: 0px;
+}
+
+#info-panel div {
     padding: 1.5rem;
     padding-bottom: 3rem;
 }

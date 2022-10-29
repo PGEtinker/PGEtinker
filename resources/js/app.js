@@ -163,7 +163,7 @@ let PGEtinker = function()
     // Component: information panel
     goldenLayout_PGEtinker.registerComponent( 'info', function( container, componentState )
     {
-        container.getElement().html( '<div id="info-panel" data-type="text/css"></div>' );
+        container.getElement().html( '<div id="info-panel"><div></div></div>' );
         container.on('open', function()
         {
             container_Information = container.parent;
@@ -206,7 +206,7 @@ let PGEtinker = function()
     {
         // populate elements
         elem_Editor       = document.querySelector('#editor-panel .code-editor');
-        elem_Information  = document.querySelector('#info-panel');
+        elem_Information  = document.querySelector('#info-panel div');
         elem_Console      = document.querySelector('#console-panel div');
         elem_PlayerFrame  = document.querySelector('#player-panel iframe');
         elem_PlayerStatus = document.querySelector('#player-panel div');
