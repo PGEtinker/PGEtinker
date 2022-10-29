@@ -184,20 +184,20 @@ let PGEtinker = function()
         });
     });
     
-    // function LoadModel(fileName)
-    // {
-    //     axios.get(`/api/v${apiVersion}/code/${fileName}`).then(function(response)
-    //     {
-    //         if(response.data.success)
-    //         {
-    //             monaco.editor.createModel(response.data.code, 'cpp', fileName);
-    //         }
-    //     })
-    //     .catch(function (error)
-    //     {
-    //         console.log(error);
-    //     });
-    // }
+    function LoadModel(fileName)
+    {
+        axios.get(`/api/monaco-model/${fileName}`).then(function(response)
+        {
+            if(response.data.success)
+            {
+                monaco.editor.createModel(response.data.code, 'cpp', fileName);
+            }
+        })
+        .catch(function (error)
+        {
+            console.log(error);
+        });
+    }
 
     /*************************************************************************
      * LAYOUT INITIALIZAION
@@ -246,7 +246,26 @@ let PGEtinker = function()
             });
         }
 
-        // LoadModel('olcPixelGameEngine.h');
+        [   'olcPixelGameEngine.h',
+            'olcPGEX_Graphics2D.h',
+            'olcPGEX_Graphics3D.h',
+            'olcPGEX_Network.h',
+            'olcPGEX_PopUpMenu.h',
+            'olcPGEX_QuickGUI.h',
+            'olcPGEX_RayCastWorld.h',
+            'olcPGEX_SplashScreen.h',
+            'olcPGEX_TransformedView.h',
+            'olcPGEX_Wireframe.h',
+            'olcUTIL_Animate2D.h',
+            'olcUTIL_Camera2D.h',
+            'olcUTIL_Geometry2D.h',
+            'olcUTIL_Palette.h',
+            'olcUTIL_QuadTree.h',
+            'olcSoundWaveEngine.h',
+        ].forEach(function(header)
+        {
+            LoadModel(header);
+        });
 
         SetTheme();
 

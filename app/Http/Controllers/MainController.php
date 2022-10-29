@@ -13,6 +13,31 @@ use Kvz\YoutubeId\Converter;
 class MainController extends Controller
 {
     
+    // GET /api/monaco-model
+    public function GetMonacoModel(String $filename)
+    {
+        if(strpos($filename, '..') !== false)
+            return [ 'success' => false, 'message' => 'invalid request' ];
+        
+        $third_party_path = base_path() . '/third-party';
+        $pge_path = "{$third_party_path}/olcPixelGameEngine";
+        $swe_path = "{$third_party_path}/olcSoundWaveEngine";
+        
+        if(file_exists("{$pge_path}/{$filename}"))
+            return response([ 'success' => true, 'code' => mb_convert_encoding(file_get_contents("{$pge_path}/{$filename}"), 'UTF-8', 'UTF-8') ], 200);
+
+        if(file_exists("{$pge_path}/extensions/{$filename}"))
+            return response([ 'success' => true, 'code' => mb_convert_encoding(file_get_contents("{$pge_path}/extensions/{$filename}"), 'UTF-8', 'UTF-8') ], 200);
+
+        if(file_exists("{$pge_path}/utilities/{$filename}"))
+            return response([ 'success' => true, 'code' => mb_convert_encoding(file_get_contents("{$pge_path}/utilities/{$filename}"), 'UTF-8', 'UTF-8') ], 200);
+
+        if(file_exists("{$swe_path}/{$filename}"))
+             return response([ 'success' => true, 'code' => mb_convert_encoding(file_get_contents("{$swe_path}/{$filename}"), 'UTF-8', 'UTF-8') ], 200);
+        
+        return response([ 'success' => false, 'message' => 'not found' ], 404);
+    }
+
     // POST /api/share
     public function Share(Request $request)
     {
