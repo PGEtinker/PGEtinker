@@ -348,11 +348,7 @@ let PGEtinker = function()
     function processCompilerResponse(response)
     {
         
-        if(response.data.success)
-        {
-            return true;
-        }
-        else
+        if(!response.data.success)
         {
             elem_PlayerStatus.className = 'fail';
         }
@@ -398,7 +394,6 @@ let PGEtinker = function()
         elem_Information.innerHTML = out;
         monaco_EditorDecorator = monaco_Editor.deltaDecorations([], entries);
         
-        return false;
     }
 
 
@@ -425,7 +420,8 @@ let PGEtinker = function()
         axios.post(`/api/compile`, {code: monaco_Editor.getModel().getValue()})
         .then(function(response)
         {
-            if(processCompilerResponse(response))
+            processCompilerResponse(response);
+            if(response.data.success)
             {
                 player_Filename = response.data.filename;
                 localStorage.setItem('pgeTinkerWasmFilename', player_Filename);
