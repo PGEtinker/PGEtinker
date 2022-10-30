@@ -184,7 +184,7 @@ class MainController extends Controller
         // write the source file
         file_put_contents("{$filename}.cpp", $request->get('code'));
 
-        $docker_filename = str_replace("{$base_data_path}/", "/src/", $filename);
+        $docker_filename = str_replace("{$base_data_path}/", "/src/data/", $filename);
 
         // open a process to our custom build script, pipe stdout/stderr streams
         $process = proc_open(
