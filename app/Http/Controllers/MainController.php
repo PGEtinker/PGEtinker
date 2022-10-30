@@ -80,14 +80,15 @@ class MainController extends Controller
             
         }
         
-        Log::info("Shared: " . env('APP_URL') . "/{$code->slug}");
+        Log::info("Shared: " . env('APP_URL') . "/s/{$code->slug}");
 
         // if we make it here, we need to create one!
         return [
             'success' => true,
             'message' => '',
             'slug' => $code->slug,
-            'url' => env('APP_URL') . '/' . $code->slug
+            'share_url' => env('APP_URL') . '/s/' . $code->slug,
+            'embed_url' => env('APP_URL') . '/embed/' . $code->slug,
         ];
     }
     

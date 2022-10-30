@@ -407,10 +407,7 @@ let PGEtinker = function()
         elem_Information.innerHTML = '';
         
         // this is here to replace the URL when you compile a share, after making a change to it.
-        if(editor_ChangedAfterLoad)
-        {
-            window.history.replaceState(null, 'PGEtinker', '/');
-        }
+        window.history.replaceState(null, 'PGEtinker', '/');
             
         // switch to information panel
         FocusContainer(container_Information);
@@ -513,11 +510,7 @@ let PGEtinker = function()
             }, 1000);
 
 
-            // setTimeout(function()
-            // {
-                window.history.replaceState(null, 'PGEtinker', response.data.url);
-                // window.location.reload();
-            // }, 500);
+            window.history.replaceState(null, 'PGEtinker', response.data.share_url);
         })
         .catch(function(error)
         {
