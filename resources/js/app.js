@@ -26,13 +26,19 @@ let PGEtinker = function()
     // shim String to convert html entities
     String.prototype.toHtmlEntities = function() { return this.replace(/./gm, function(s) { return (s.match(/[a-z0-9\s]+/i)) ? s : "&#" + s.charCodeAt(0) + ";"; }); };
     
+    // status flags
+    let compiling               = false;
+
     // Editor Panel
     let monaco_Editor           = null;
     let monaco_EditorDecorator  = null;
     let elem_Editor             = null;
+    let elem_EditorStatus       = null;
     let container_Editor        = null;
-    let editor_ChangedAfterLoad = false;
     
+    let num_EditorMaxLength     = 50000;
+    let num_EditorLength        = null;
+
     // Information Panel
     let elem_Information      = null;
     let container_Information = null;
@@ -146,6 +152,7 @@ let PGEtinker = function()
         </ul>
     </div>
     <div class="code-editor"></div>
+    <div class="status">Loading</div>
 </div>`);
         
         container.on('open', function()
@@ -199,6 +206,21 @@ let PGEtinker = function()
         });
     }
 
+    function EditorStatusIndicators()
+    {
+        num_EditorLength = new Number(monaco_Editor.getModel().getValueLength());
+        
+        elem_EditorStatus.classList.toggle('too-fucking-big', (num_EditorLength > num_EditorMaxLength));
+        
+        let characterIndicator = `<span>${num_EditorLength.toLocaleString()} / ${num_EditorMaxLength.toLocaleString()} characters.</span>`;
+        let positionIndicator = `<span>Ln ${monaco_Editor.getPosition().lineNumber}, Col ${monaco_Editor.getPosition().column}</span>`;
+
+        let left = ``;
+        let right = `${characterIndicator}${positionIndicator}`;
+
+        elem_EditorStatus.innerHTML = `<div class="status-left">${left}</div><div class="status-right">${right}</div>`;
+    }
+
     /*************************************************************************
      * LAYOUT INITIALIZAION
      *************************************************************************/
@@ -206,6 +228,7 @@ let PGEtinker = function()
     {
         // populate elements
         elem_Editor       = document.querySelector('#editor-panel .code-editor');
+        elem_EditorStatus = document.querySelector('#editor-panel .status');
         elem_Information  = document.querySelector('#info-panel div');
         elem_Console      = document.querySelector('#console-panel div');
         elem_PlayerFrame  = document.querySelector('#player-panel iframe');
@@ -230,6 +253,8 @@ let PGEtinker = function()
             {
                 monaco_Editor.getModel().setValue(JSON.parse(localStorage.getItem('pgeTinkerSourceText')));
             }
+            
+            EditorStatusIndicators();
         }
         else
         {
@@ -238,6 +263,8 @@ let PGEtinker = function()
             {
                 if(response.data.success)
                     monaco_Editor.getModel().setValue(response.data.code);
+                
+                EditorStatusIndicators();
             })
             .catch(function(error)
             {
@@ -246,45 +273,26 @@ let PGEtinker = function()
             });
         }
 
-        [   'olcPixelGameEngine.h',
-            'olcPGEX_Graphics2D.h',
-            'olcPGEX_Graphics3D.h',
-            'olcPGEX_Network.h',
-            'olcPGEX_PopUpMenu.h',
-            'olcPGEX_QuickGUI.h',
-            'olcPGEX_RayCastWorld.h',
-            'olcPGEX_SplashScreen.h',
-            'olcPGEX_TransformedView.h',
-            'olcPGEX_Wireframe.h',
-            'olcUTIL_Animate2D.h',
-            'olcUTIL_Camera2D.h',
-            'olcUTIL_Geometry2D.h',
-            'olcUTIL_Palette.h',
-            'olcUTIL_QuadTree.h',
-            'olcSoundWaveEngine.h',
-        ].forEach(function(header)
+        ['olcPixelGameEngine.h','olcPGEX_Graphics2D.h','olcPGEX_Graphics3D.h','olcPGEX_Network.h','olcPGEX_PopUpMenu.h','olcPGEX_QuickGUI.h','olcPGEX_RayCastWorld.h','olcPGEX_SplashScreen.h','olcPGEX_TransformedView.h','olcPGEX_Wireframe.h','olcUTIL_Animate2D.h','olcUTIL_Camera2D.h','olcUTIL_Geometry2D.h','olcUTIL_Palette.h','olcUTIL_QuadTree.h','olcSoundWaveEngine.h',].forEach(function(header)
         {
             LoadModel(header);
         });
 
         SetTheme();
+        
+        monaco_Editor.onDidChangeCursorPosition(function(e)
+        {
+            // Handle Editor Status Indicators
+            EditorStatusIndicators();
+        });
 
         monaco_Editor.onDidChangeModelContent(function(e)
         {
-            
-            if(monaco_Editor.getModel().getValueLength() > 50000)
-            {
-                alert('You are exceeding the reasonable limit of 50,000 characters.');
-                return;
-            }
+            // Handle Editor Status Indicators
+            EditorStatusIndicators();
 
             // save the source text to the localStorage as it's entered
             localStorage.setItem('pgeTinkerSourceText', JSON.stringify(monaco_Editor.getModel().getValue()));
-
-            if(editor_ChangedAfterLoad)
-                return;
-            
-            editor_ChangedAfterLoad = true;
         });
 
         // initialize code editor's decorations
@@ -393,7 +401,7 @@ let PGEtinker = function()
         
         elem_Information.innerHTML = out;
         monaco_EditorDecorator = monaco_Editor.deltaDecorations([], entries);
-        
+        compiling = false;
     }
 
 
@@ -403,6 +411,16 @@ let PGEtinker = function()
     
     function Compile()
     {
+        if(compiling)
+            return false;
+
+        if(num_EditorLength > num_EditorMaxLength)
+        {
+            alert(`I know, I know! You want to compile a big program in this little toy, but treating everybody equally means you're limited to ${num_EditorMaxLength.toLocaleString()} characters just like everybody else.`);
+            return false;
+        }
+        
+        compiling = true;
         elem_PlayerStatus.className = 'compiling';
         elem_Information.innerHTML = '';
         
@@ -476,14 +494,18 @@ let PGEtinker = function()
     
     function Share()
     {
+        if(compiling)
+            return false;
+
+        if(num_EditorLength > num_EditorMaxLength)
+        {
+            alert(`I know, I know! You want to compile a big program in this little toy, but treating everybody equally means you're limited to ${num_EditorMaxLength.toLocaleString()} characters just like everybody else.`);
+            return false;
+        }
+
+        compiling = true;
         elem_PlayerStatus.className = 'compiling';
         elem_Information.innerHTML = '';
-
-        // this is here to replace the URL when you compile a share, after making a change to it.
-        if(editor_ChangedAfterLoad)
-        {
-            window.history.replaceState(null, 'PGEtinker', '/');
-        }
 
         // switch to information panel
         FocusContainer(container_Information);
