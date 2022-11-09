@@ -44,7 +44,10 @@
     <script type='text/javascript'>
         var Module = {
             preRun: [],
-            postRun: [],
+            postRun: [function() {
+                window.parent.postMessage({event: 'pgetinker:ready', }, '{{ env('APP_URL') }}');
+                window.parent.postMessage({event: 'pgetinker:console-clear', }, '{{ env('APP_URL') }}');
+            }, ],
             print: (function () {
                 return function (text) {
                     if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
@@ -81,10 +84,8 @@
                 if (text) console.error('[post-exception status] ' + text);
             };
         };
-        // clear the console in top window
-        window.parent.postMessage({
-            event: 'pgetinker:console-clear',
-        }, '{{ env('APP_URL') }}');
+        
+        window.parent.postMessage({event: 'pgetinker:not-ready', }, '{{ env('APP_URL') }}');
         
         window.addEventListener('message', function(e) {
             
