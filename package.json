@@ -20,6 +20,11 @@
     },
     "dependencies": {
         "golden-layout": "^1.5.9",
-        "monaco-editor": "^0.34.0"
+        "jquery": "^3.6.1",
+        "monaco-editor": "^0.34.0",
+        "monaco-editor-workers": "^0.34.2",
+        "monaco-languageclient": "^4.0.1",
+        "vscode-json-languageservice": "^5.1.1",
+        "vscode-ws-jsonrpc": "^2.0.0"
     }
 }
