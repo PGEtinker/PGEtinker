@@ -156,6 +156,7 @@ class MainController extends Controller
 
             // your fans await your greatness!
             return [
+                'filename' => '',
                 'message'  => "Ah ah ah, you tried to include a file you're not supposed to see.",
                 'success' => false,
             ];
