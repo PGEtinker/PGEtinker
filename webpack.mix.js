@@ -37,7 +37,7 @@ mix.copy('node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css.
 mix.copy('resources/images', 'public/images');
 
 // app js
-mix.js('resources/js/app.js', 'public/js');
+mix.ts('resources/js/app.ts', 'public/js');
 
 // app css
 mix.css('resources/css/app.css', 'public/css');
