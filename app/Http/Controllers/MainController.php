@@ -41,6 +41,8 @@ class MainController extends Controller
     // POST /api/share
     public function Share(Request $request)
     {
+        $base_data_path = base_path() . '/public/data';
+
         $sourceText = $request->get('code');
         $hashText = hash('sha256', $sourceText);
         
@@ -65,8 +67,6 @@ class MainController extends Controller
             $code->save();
 
             // copy the files to their shared/id files.
-            $base_data_path = base_path() . '/public/data';
-            
             copy("{$base_data_path}/{$build_data['filename']}.wasm", "{$base_data_path}/{$code->slug}.wasm");
             
             file_put_contents(
@@ -82,6 +82,36 @@ class MainController extends Controller
         
         Log::info("Shared: " . env('APP_URL') . "/s/{$code->slug}");
 
+        // initialize stdout/stderr buffers
+        $stdout = null;
+        $stderr = null;
+
+        $original_directory = getcwd();
+        chdir(base_path());
+
+       // open a process to our custom build script, pipe stdout/stderr streams
+       $process = proc_open(
+            base_path() . '/screenshot-script.sh ' . $code->slug, // command
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],     // define pipes
+            $pipes                                        // handle for pipe streams
+        );
+
+        // read pipe 1 into $stdout, then close pipe 1
+        $stdout = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        
+        // read pipe 2 into $stderr, then close pipe 2
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        // close the process, to be tidy
+        proc_close($process);
+
+        chdir($original_directory);
+        
+        Log::info($stdout);
+        Log::info($stderr);
+
         // if we make it here, we need to create one!
         return [
             'success' => true,
@@ -89,6 +119,7 @@ class MainController extends Controller
             'slug' => $code->slug,
             'share_url' => env('APP_URL') . '/s/' . $code->slug,
             'embed_url' => env('APP_URL') . '/embed/' . $code->slug,
+            'image_url' => env('APP_URL') . '/data/' . $code->slug . '.png',
         ];
     }
     
