@@ -45,7 +45,7 @@ export default class PlayerPanel extends Panel
                     return;
                 
                 // send the theme back
-                event.source!.postMessage({ theme: this.state._theme }, "*");
+                event.source!.postMessage({event: 'pgetinker:set-theme', theme: this.state._theme}, "*");
 
                 if(event.data.event === 'pgetinker:console-clear')
                 {
@@ -69,7 +69,9 @@ export default class PlayerPanel extends Panel
                 if(event.data.event === 'pgetinker:not-ready')
                 {
                     (this.elemStatus as HTMLDivElement).className = 'loading';
+                    return;
                 }
+
             });
         });
     }
@@ -98,6 +100,6 @@ export default class PlayerPanel extends Panel
         if(theme !== 'light' && theme !== 'dark')
             theme = 'dark';
         
-        this.elemFrame.contentWindow!.postMessage({theme: theme}, "*");
+        this.elemFrame.contentWindow!.postMessage({event: 'pgetinker:set-theme', theme: theme}, "*");
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Use Whole Page Test</title>
+    <title>PGEtinker</title>
     <style>
         html,
         body {
@@ -89,16 +89,19 @@
         
         window.addEventListener('message', function(e) {
             
-            if(e.data.theme === undefined)
+            if(e.data.event === undefined)
                 return;
             
-            if(e.data.theme === 'light')
+            if(e.data.event === 'pgetinker:set-theme')
             {
-                document.querySelector('body').className = 'light';
+                // default is dark
+                document.querySelector('body').className = '';
+
+                if(e.data.theme === 'light')
+                    document.querySelector('body').className = 'light';
+                
                 return;
             }
-            
-            document.querySelector('body').className = '';
         });
     </script>
     
