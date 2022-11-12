@@ -17,6 +17,6 @@ use App\Http\Controllers\PageController;
 Route::get('/player',            [ PageController::class, "player" ]);
 Route::get('/player/{filename}', [ PageController::class, "player" ]);
 
-Route::get('/embed/{slug}',      [ PageController::class, "player" ]);
+Route::get('/embed/{slug}',      [ PageController::class, "embed" ]);
 Route::get('/s/{slug}',          [ PageController::class, "shared" ]);
 Route::get('/',                  [ PageController::class, "index"  ]);

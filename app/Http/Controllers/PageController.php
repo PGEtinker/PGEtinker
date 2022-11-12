@@ -38,4 +38,14 @@ class PageController extends Controller
         return view('app', [ 'slug' => $slug ]);
     }
 
+    // Web Route: /embed/{slug}
+    public function embed(String $slug = '')
+    {
+        // if we don't have a compiled version to display, show the intro screen
+        if(!file_exists(base_path() . "/public/data/{$slug}.js"))
+            return response()->view('not-found', [], 404);
+            
+        return view('embed', [ 'slug' => $slug, ]);
+    }
+
 }
