@@ -82,7 +82,7 @@ export default class Compiler extends Base
         this.state.panel_Player.elemStatus!.className = 'compiling';
         this.state.panel_Info.elem.innerHTML = '';
 
-        window.history.replaceState(null, 'PGEtinker', '/editor');
+        window.history.replaceState(null, 'PGEtinker', '/');
 
         this.state.panel_Info.focus();
         this.state.panel_Editor.monacoDecorator = this.state.panel_Editor.monaco!.deltaDecorations(this.state.panel_Editor.monacoDecorator, []);
