@@ -69,6 +69,7 @@ export default class PlayerPanel extends Panel
                 if(event.data.event === 'pgetinker:not-ready')
                 {
                     (this.elemStatus as HTMLDivElement).className = 'loading';
+                    this.state.panel_Console.clear();
                     return;
                 }
 
