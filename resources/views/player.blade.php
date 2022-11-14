@@ -46,7 +46,6 @@
             preRun: [],
             postRun: [function() {
                 window.parent.postMessage({event: 'pgetinker:ready', }, '{{ env('APP_URL') }}');
-                window.parent.postMessage({event: 'pgetinker:console-clear', }, '{{ env('APP_URL') }}');
             }, ],
             print: (function () {
                 return function (text) {
