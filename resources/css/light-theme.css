@@ -1,0 +1,18 @@
+/* LIGHT THEME */
+body.light {
+    background: none;
+    color: #000;
+}
+
+body.light #app,
+body.light #player-panel div.loading {
+    background: #fff;
+    color: #000;
+}
+
+body.light #info-panel a:active,
+body.light #info-panel a:link,
+body.light #info-panel a:visited {
+    color:rgb(196, 99, 99);
+    text-decoration: none;
+}
