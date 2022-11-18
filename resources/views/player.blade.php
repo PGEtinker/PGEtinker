@@ -50,7 +50,6 @@
             print: (function () {
                 return function (text) {
                     if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-                    console.log(text);
                     // write to console in top window
                     window.parent.postMessage({
                         event: 'pgetinker:console-write',
