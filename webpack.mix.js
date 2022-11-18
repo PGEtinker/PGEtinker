@@ -17,21 +17,17 @@ mix.copy('node_modules/golden-layout/dist/goldenlayout.min.js', 'public/js');
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-base.css', 'public/css');
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-base.css.map', 'public/css');
 
-// dark theme
+// golden dark theme
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-dark-theme.css', 'public/css');
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-dark-theme.css.map', 'public/css');
 
-// light theme
+// golden light theme
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-light-theme.css', 'public/css');
 mix.copy('node_modules/golden-layout/src/css/goldenlayout-light-theme.css.map', 'public/css');
 
-// soda theme
-mix.copy('node_modules/golden-layout/src/css/goldenlayout-soda-theme.css', 'public/css');
-mix.copy('node_modules/golden-layout/src/css/goldenlayout-soda-theme.css.map', 'public/css');
-
-// translucent theme
-mix.copy('node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css', 'public/css');
-mix.copy('node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css.map', 'public/css');
+// font awesome
+mix.copy('node_modules/font-awesome/css/font-awesome.min.css', 'public/css');
+mix.copy('node_modules/font-awesome/fonts', 'public/fonts');
 
 // images
 mix.copy('resources/images', 'public/images');

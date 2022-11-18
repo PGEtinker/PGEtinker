@@ -35,6 +35,8 @@
         <meta property="twitter:image:width" content="800">
         <meta property="twitter:image:height" content="600">
         
+        <link type="text/css" rel="stylesheet" href="{{ mix('css/font-awesome.min.css') }}"> 
+
         <script type="text/javascript" src="{{ mix('js/jquery.min.js') }}"></script>
         
         <script type="text/javascript" src="{{ mix('js/goldenlayout.min.js') }}"></script>
