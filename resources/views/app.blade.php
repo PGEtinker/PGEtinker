@@ -58,7 +58,15 @@
                     </a>
                 </div>
             </div>
-            <div id="content"></div>
+            <div id="content">
+                <noscript>
+                    <p>
+                        It's cute that you think you're going to use a
+                        webapp that relies so heavily on javascript...
+                        ...without javascript.
+                    </p>
+                </noscript>
+            </div>
             <div id="footer">
                 Haven't quite decided what should go here, probably a copyright notice or perhaps a whitty quote.
             </div>
