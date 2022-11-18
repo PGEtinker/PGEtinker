@@ -1,5 +1,5 @@
 @import './layout.css';
-
+@import './utilities.css';
 @import './panels/console.css';
 @import './panels/editor.css';
 @import './panels/info.css';

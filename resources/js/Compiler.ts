@@ -3,6 +3,8 @@ import State from "./State";
 
 import axios from "axios";
 import * as monaco from "monaco-editor";
+import OverLimitDialog from "./dialogs/OverLimitDialog";
+import ShareDialog from "./dialogs/ShareDialog";
 
 export default class Compiler extends Base
 {
@@ -26,7 +28,7 @@ export default class Compiler extends Base
         
         if(this.state.panel_Editor.length > this.state.panel_Editor.max)
         {
-            alert(`I know, I know! You want to compile a big program in this little toy, but treating everybody equally means you're limited to ${this.state.panel_Editor.max.toLocaleString()} characters just like everybody else.`);
+            let overLimitDialog = new OverLimitDialog(this.state);
             return;
         }
 
@@ -74,7 +76,7 @@ export default class Compiler extends Base
         
         if(this.state.panel_Editor.length > this.state.panel_Editor.max)
         {
-            alert(`I know, I know! You want to compile a big program in this little toy, but treating everybody equally means you're limited to ${this.state.panel_Editor.max.toLocaleString()} characters just like everybody else.`);
+            let overLimitDialog = new OverLimitDialog(this.state);
             return;
         }
 
@@ -104,7 +106,7 @@ export default class Compiler extends Base
                     this.state.panel_Console.focus();
                 }, 1000);
                 
-                window.history.replaceState(null, 'PGEtinker', response.data.share_url);
+                let shareDialog: ShareDialog = new ShareDialog(this.state, response.data.share_url, response.data.embed_url, response.data.image_url);
             }
         })
         .catch((error) =>
