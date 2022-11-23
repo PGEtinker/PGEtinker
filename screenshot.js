@@ -16,7 +16,10 @@ function App()
     }
     
     async function run () {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--use-gl=egl'],
+          });
         const page = await browser.newPage();
         await page.goto(url);
         await sleep(parseInt(process.env.SCREENSHOT_DELAY));
