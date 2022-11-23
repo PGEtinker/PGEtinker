@@ -19,7 +19,7 @@ function App()
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
         await page.goto(url);
-        await sleep(parseInt(process.env.SCREENSHOT_DELAY | 2000));
+        await sleep(parseInt(process.env.SCREENSHOT_DELAY));
         await page.screenshot({path: img});
         browser.close();
     }
