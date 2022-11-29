@@ -7,6 +7,7 @@ timeout 10 \
         --rm \
         --volume="$(pwd)/public/data":/src/data \
         --volume="$(pwd)/third-party":/src/third-party \
+        -u "emscripten" \
         pgetinker-builder:latest \
         em++ \
         "$1.cpp" \
