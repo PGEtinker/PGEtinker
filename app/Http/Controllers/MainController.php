@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 use Kvz\YoutubeId\Converter;
+use Illuminate\Support\Facades\Http;
 
 class MainController extends Controller
 {
@@ -81,36 +82,24 @@ class MainController extends Controller
         }
         
         Log::info("Shared: " . env('APP_URL') . "/s/{$code->slug}");
-
-        // initialize stdout/stderr buffers
-        $stdout = null;
-        $stderr = null;
-
-        $original_directory = getcwd();
-        chdir(base_path());
-
-       // open a process to our custom build script, pipe stdout/stderr streams
-       $process = proc_open(
-            base_path() . '/screenshot-script.sh ' . $code->slug, // command
-            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],     // define pipes
-            $pipes                                        // handle for pipe streams
-        );
-
-        // read pipe 1 into $stdout, then close pipe 1
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
         
-        // read pipe 2 into $stderr, then close pipe 2
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-
-        // close the process, to be tidy
-        proc_close($process);
-
-        chdir($original_directory);
+        // grab screenshot
+        $response = Http::post(env('SCREENSHOT_API_ENDPOINT'), [
+            'url' => env('APP_URL') . "/player/{$code->slug}",
+            'delay' => env('SCREENSHOT_API_DELAY'),
+        ]);
         
-        Log::info($stdout);
-        Log::info($stderr);
+        $image = $response->json('image-data');
+        
+        if($image)
+        {
+            $image = str_replace('data:image/png;base64,', '', $image);
+            file_put_contents($base_data_path.'/'.$code->slug.'.png', base64_decode($image));
+        }
+        else
+        {
+            Log::error('unable to load screenshot for: ' . $code->slug);
+        }
 
         // if we make it here, we need to create one!
         return [
